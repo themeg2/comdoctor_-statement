@@ -83,6 +83,29 @@
             margin-bottom: 10px;
         }
         
+        .customer-input-section {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        
+        .customer-input-section label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .customer-input-section input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
         /* 인쇄용 A4 크기 설정 */
         .report-container {
             display: none;
@@ -272,6 +295,14 @@
         <h1>컴퓨터 하드웨어 점검 내역서 생성</h1>
         <p>점검할 항목을 선택하시면 점검 내역서가 자동으로 생성됩니다.</p>
         
+        <div class="customer-input-section">
+            <label for="customer-input">고객명:</label>
+            <input type="text" id="customer-input" placeholder="고객명을 입력하세요">
+            
+            <label for="date-input">점검일:</label>
+            <input type="date" id="date-input">
+        </div>
+        
         <button class="select-all-btn" onclick="selectAllItems(true)">전체 항목 선택</button>
         <button class="select-all-btn" onclick="selectAllItems(false)" style="background-color: #f44336;">전체 항목 해제</button>
         
@@ -412,6 +443,13 @@
     </div>
 
     <script>
+        // 현재 날짜를 입력 필드의 기본값으로 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            const today = new Date();
+            const formattedDate = today.toISOString().slice(0, 10); // YYYY-MM-DD 형식
+            document.getElementById('date-input').value = formattedDate;
+        });
+        
         // 전체 항목 선택/해제 기능
         function selectAllItems(checked) {
             // 출장비 체크박스
@@ -460,24 +498,30 @@
             }
         }
         
+        // 날짜 포맷 함수 (YYYY-MM-DD를 YYYY년 MM월 DD일로 변환)
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            
+            return `${year}년 ${month}월 ${day}일`;
+        }
+        
         // 점검 내역서 생성 함수
         function generateReport() {
             // 테이블 내용 초기화
             const tbody = document.getElementById("report-items-body");
             tbody.innerHTML = "";
             
-            // 고객명 입력 받기
-            const customerName = prompt("고객명을 입력해주세요:", "홍길동");
-            if (customerName) {
-                document.getElementById("customer-name").textContent = customerName;
-            }
+            // 입력 필드에서 고객명 가져오기
+            const customerName = document.getElementById("customer-input").value.trim() || "홍길동";
+            document.getElementById("customer-name").textContent = customerName;
             
-            // 현재 날짜 설정
-            const today = new Date();
-            const dateString = today.getFullYear() + "년 " + 
-                              (today.getMonth() + 1) + "월 " + 
-                              today.getDate() + "일";
-            document.getElementById("current-date").textContent = dateString;
+            // 입력 필드에서 날짜 가져오기
+            const dateInput = document.getElementById("date-input").value;
+            const formattedDate = dateInput ? formatDate(dateInput) : formatDate(new Date().toISOString().slice(0, 10));
+            document.getElementById("current-date").textContent = formattedDate;
             
             let totalAmount = 0;
             let hasItems = false;
