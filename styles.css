@@ -38,18 +38,37 @@ h1, h2 {
     margin-bottom: 8px;
     padding: 8px;
     border-bottom: 1px solid #eee;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
 }
 
 .hardware-item label {
-    display: block;
     margin-bottom: 3px;
     font-weight: bold;
+    flex: 1;
+}
+
+.price-input-container {
+    display: flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.price-input {
+    width: 80px;
+    padding: 4px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-align: right;
+    margin-right: 5px;
 }
 
 .hardware-details {
     margin-left: 20px;
-    margin-top: 3px;
+    margin-top: 10px;
     display: none;
+    width: 100%;
 }
 
 input[type="checkbox"] {
@@ -286,6 +305,17 @@ button {
 
 .save-button {
     background-color: #2196F3;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+    font-size: 14px;
+    margin: 4px auto;
+    cursor: pointer;
+    border-radius: 4px;
+    width: 200px;
     margin-top: 15px;
 }
 

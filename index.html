@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <h1>컴퓨터 하드웨어 점검 내역서 생성</h1>
-        <p>점검할 항목을 선택하시면 점검 내역서가 자동으로 생성됩니다.</p>
+        <p>점검할 항목을 선택하시고 금액을 수정하신 후 점검 내역서 생성 버튼을 누르시면 새 창에서 내역서가 생성됩니다.</p>
         
         <div class="customer-input-section">
             <label for="customer-input">고객명:</label>
@@ -24,152 +24,80 @@
         
         <div class="form-section">
             <div class="hardware-item">
-                <label><input type="checkbox" id="visit-check"> 출장비 (20,000원)</label>
+                <label><input type="checkbox" id="visit-check"> 출장비</label>
+                <div class="price-input-container">
+                    <input type="number" id="visit-price" class="price-input" value="20000" min="0" step="1000"> 원
+                </div>
             </div>
             
             <div class="hardware-item">
-                <label><input type="checkbox" id="cpu-check" onclick="toggleDetails('cpu-details'); checkAllSubItems('cpu-items', this.checked)"> CPU Performance Check (10,000원)</label>
+                <label><input type="checkbox" id="cpu-check" onclick="toggleDetails('cpu-details'); checkAllSubItems('cpu-items', this.checked)"> CPU Performance Check</label>
+                <div class="price-input-container">
+                    <input type="number" id="cpu-price" class="price-input" value="10000" min="0" step="1000"> 원
+                </div>
                 <div id="cpu-details" class="hardware-details">
-                    <label><input type="checkbox" name="cpu-items" value="10000"> CPU Temperature 측정 및 Thermal throttling 확인</label><br>
-                    <label><input type="checkbox" name="cpu-items" value="0"> Basic performance benchmark 테스트</label><br>
-                    <label><input type="checkbox" name="cpu-items" value="0"> CPU Fan 작동 상태 및 RPM 확인</label><br>
-                    <label><input type="checkbox" name="cpu-items" value="0"> Clock speed 정상 동작 확인</label><br>
+                    <label><input type="checkbox" name="cpu-items"> CPU Temperature 측정 및 Thermal throttling 확인</label><br>
+                    <label><input type="checkbox" name="cpu-items"> Basic performance benchmark 테스트</label><br>
+                    <label><input type="checkbox" name="cpu-items"> CPU Fan 작동 상태 및 RPM 확인</label><br>
+                    <label><input type="checkbox" name="cpu-items"> Clock speed 정상 동작 확인</label><br>
                 </div>
             </div>
             
             <div class="hardware-item">
-                <label><input type="checkbox" id="mb-check" onclick="toggleDetails('mb-details'); checkAllSubItems('mb-items', this.checked)"> Motherboard Diagnostics (10,000원)</label>
+                <label><input type="checkbox" id="mb-check" onclick="toggleDetails('mb-details'); checkAllSubItems('mb-items', this.checked)"> Motherboard Diagnostics</label>
+                <div class="price-input-container">
+                    <input type="number" id="mb-price" class="price-input" value="10000" min="0" step="1000"> 원
+                </div>
                 <div id="mb-details" class="hardware-details">
-                    <label><input type="checkbox" name="mb-items" value="10000"> Power delivery 안정성 및 POST 테스트</label><br>
-                    <label><input type="checkbox" name="mb-items" value="0"> Main slots(RAM, PCIe, SATA) connectivity 확인</label><br>
-                    <label><input type="checkbox" name="mb-items" value="0"> BIOS/UEFI settings 점검</label><br>
-                    <label><input type="checkbox" name="mb-items" value="0"> Board damage & capacitor status 확인</label><br>
+                    <label><input type="checkbox" name="mb-items"> Power delivery 안정성 및 POST 테스트</label><br>
+                    <label><input type="checkbox" name="mb-items"> Main slots(RAM, PCIe, SATA) connectivity 확인</label><br>
+                    <label><input type="checkbox" name="mb-items"> BIOS/UEFI settings 점검</label><br>
+                    <label><input type="checkbox" name="mb-items"> Board damage & capacitor status 확인</label><br>
                 </div>
             </div>
             
             <div class="hardware-item">
-                <label><input type="checkbox" id="ram-check" onclick="toggleDetails('ram-details'); checkAllSubItems('ram-items', this.checked)"> Memory (RAM) Testing (10,000원)</label>
+                <label><input type="checkbox" id="ram-check" onclick="toggleDetails('ram-details'); checkAllSubItems('ram-items', this.checked)"> Memory (RAM) Testing</label>
+                <div class="price-input-container">
+                    <input type="number" id="ram-price" class="price-input" value="10000" min="0" step="1000"> 원
+                </div>
                 <div id="ram-details" class="hardware-details">
-                    <label><input type="checkbox" name="ram-items" value="10000"> RAM recognition & capacity verification</label><br>
-                    <label><input type="checkbox" name="ram-items" value="0"> Memory error diagnostics</label><br>
-                    <label><input type="checkbox" name="ram-items" value="0"> Compatibility & dual-channel 구성 점검</label><br>
-                    <label><input type="checkbox" name="ram-items" value="0"> Stability testing under load</label><br>
+                    <label><input type="checkbox" name="ram-items"> RAM recognition & capacity verification</label><br>
+                    <label><input type="checkbox" name="ram-items"> Memory error diagnostics</label><br>
+                    <label><input type="checkbox" name="ram-items"> Compatibility & dual-channel 구성 점검</label><br>
+                    <label><input type="checkbox" name="ram-items"> Stability testing under load</label><br>
                 </div>
             </div>
             
             <div class="hardware-item">
-                <label><input type="checkbox" id="psu-check" onclick="toggleDetails('psu-details'); checkAllSubItems('psu-items', this.checked)"> Power Supply Unit Check (10,000원)</label>
+                <label><input type="checkbox" id="psu-check" onclick="toggleDetails('psu-details'); checkAllSubItems('psu-items', this.checked)"> Power Supply Unit Check</label>
+                <div class="price-input-container">
+                    <input type="number" id="psu-price" class="price-input" value="10000" min="0" step="1000"> 원
+                </div>
                 <div id="psu-details" class="hardware-details">
-                    <label><input type="checkbox" name="psu-items" value="10000"> Power stability & output testing</label><br>
-                    <label><input type="checkbox" name="psu-items" value="0"> Voltage rails (12V, 5V, 3.3V) 확인</label><br>
-                    <label><input type="checkbox" name="psu-items" value="0"> Cable & connector inspection</label><br>
-                    <label><input type="checkbox" name="psu-items" value="0"> Efficiency under load 테스트</label><br>
+                    <label><input type="checkbox" name="psu-items"> Power stability & output testing</label><br>
+                    <label><input type="checkbox" name="psu-items"> Voltage rails (12V, 5V, 3.3V) 확인</label><br>
+                    <label><input type="checkbox" name="psu-items"> Cable & connector inspection</label><br>
+                    <label><input type="checkbox" name="psu-items"> Efficiency under load 테스트</label><br>
                 </div>
             </div>
             
             <div class="hardware-item">
-                <label><input type="checkbox" id="gpu-check" onclick="toggleDetails('gpu-details'); checkAllSubItems('gpu-items', this.checked)"> Graphics & Display Output Testing (10,000원)</label>
+                <label><input type="checkbox" id="gpu-check" onclick="toggleDetails('gpu-details'); checkAllSubItems('gpu-items', this.checked)"> Graphics & Display Output Testing</label>
+                <div class="price-input-container">
+                    <input type="number" id="gpu-price" class="price-input" value="10000" min="0" step="1000"> 원
+                </div>
                 <div id="gpu-details" class="hardware-details">
-                    <label><input type="checkbox" name="gpu-items" value="10000"> GPU recognition & driver status check</label><br>
-                    <label><input type="checkbox" name="gpu-items" value="0"> Resolution & output ports 테스트</label><br>
-                    <label><input type="checkbox" name="gpu-items" value="0"> Graphics performance benchmark</label><br>
-                    <label><input type="checkbox" name="gpu-items" value="0"> Multi-display compatibility 점검</label><br>
-                    <label><input type="checkbox" name="gpu-items" value="0"> Display quality & refresh rate 확인</label><br>
+                    <label><input type="checkbox" name="gpu-items"> GPU recognition & driver status check</label><br>
+                    <label><input type="checkbox" name="gpu-items"> Resolution & output ports 테스트</label><br>
+                    <label><input type="checkbox" name="gpu-items"> Graphics performance benchmark</label><br>
+                    <label><input type="checkbox" name="gpu-items"> Multi-display compatibility 점검</label><br>
+                    <label><input type="checkbox" name="gpu-items"> Display quality & refresh rate 확인</label><br>
                 </div>
             </div>
         </div>
         
         <button onclick="generateReport()">점검 내역서 생성하기</button>
-    </div>
-    
-    <div id="report-result" class="report-container">
-        <div class="report-content">
-            <div class="report-title">점검내역서</div>
-            
-            <div class="business-table-container">
-                <table class="business-table">
-                    <tr>
-                        <th>등록번호</th>
-                        <td colspan="3">876-13-01105</td>
-                    </tr>
-                    <tr>
-                        <th>상 호</th>
-                        <td>웰컴 컴퓨터 수리</td>
-                        <th>대표자</th>
-                        <td class="representative-cell">최성현
-                            <img id="seal-image" class="official-seal" alt="도장" src="dojang.png">
-                        </td>
-                    </tr>
-                    <tr>
-                        <th>주 소</th>
-                        <td colspan="3">부산시 연제구 연미로 13번길 32, 3층 301호 (연산동)</td>
-                    </tr>
-                    <tr>
-                        <th>업 태</th>
-                        <td>서비스업</td>
-                        <th>종 목</th>
-                        <td>컴퓨터수리, 데이터복구</td>
-                    </tr>
-                    <tr>
-                        <th>전 화</th>
-                        <td colspan="3">070-7642-7624</td>
-                    </tr>
-                </table>
-            </div>
-            
-            <div class="customer-info">
-                <p><strong>점검일:</strong> <span id="current-date">2025년 3월 31일</span></p>
-                <p><strong>고객명:</strong> <span id="customer-name">홍길동</span> 님</p>
-            </div>
-            
-            <div class="table-container">
-                <table class="report-items">
-                    <thead>
-                        <tr>
-                            <th width="25%">점검 항목</th>
-                            <th width="55%">세부 내용</th>
-                            <th width="20%">금액</th>
-                        </tr>
-                    </thead>
-                    <tbody id="report-items-body">
-                        <!-- 여기에 동적으로 항목이 추가됩니다 -->
-                    </tbody>
-                </table>
-                
-                <!-- 항목이 적을 때 빈 공간을 채워주는 div -->
-                <div class="empty-space" id="empty-space"></div>
-            </div>
-            
-            <div class="footer-info">
-                <div class="tax-info">
-                    <table>
-                        <tr>
-                            <td width="80%"><strong>공급가액:</strong></td>
-                            <td width="20%" id="supply-amount">0원</td>
-                        </tr>
-                        <tr>
-                            <td><strong>부가세(10%):</strong></td>
-                            <td id="tax-amount">0원</td>
-                        </tr>
-                        <tr>
-                            <td><strong>총 금액(부가세 포함):</strong></td>
-                            <td id="total-with-tax">0원</td>
-                        </tr>
-                    </table>
-                </div>
-                
-                <div class="account-info">
-                    <p>입금 계좌 정보</p>
-                    <p class="account-number">기업은행 093-149055-04-014 (최성현)</p>
-                </div>
-                
-                <div class="stamp">
-                    <p>감사합니다.</p>
-                </div>
-            </div>
-        </div>
-        
-        <button class="save-button" onclick="saveToPrint()">저장하기</button>
     </div>
 
     <script src="scripts.js"></script>

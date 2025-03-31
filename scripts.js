@@ -63,159 +63,476 @@ function formatDate(dateString) {
     return `${year}년 ${month}월 ${day}일`;
 }
 
-// 점검 내역서 생성 함수
-function generateReport() {
-    // 테이블 내용 초기화
-    const tbody = document.getElementById("report-items-body");
-    tbody.innerHTML = "";
-    
-    // 입력 필드에서 고객명 가져오기
-    const customerName = document.getElementById("customer-input").value.trim() || "홍길동";
-    document.getElementById("customer-name").textContent = customerName;
-    
-    // 입력 필드에서 날짜 가져오기
-    const dateInput = document.getElementById("date-input").value;
-    const formattedDate = dateInput ? formatDate(dateInput) : formatDate(new Date().toISOString().slice(0, 10));
-    document.getElementById("current-date").textContent = formattedDate;
-    
-    let totalAmount = 0;
-    let hasItems = false;
-    let itemCount = 0; // 항목 수를 추적
-    
-    // 출장비 추가
-    if (document.getElementById("visit-check").checked) {
-        addItemToReport("출장비", "현장 방문 서비스", 20000, tbody);
-        totalAmount += 20000;
-        hasItems = true;
-        itemCount++;
-    }
-    
-    // 각 하드웨어 카테고리 체크 여부 확인
-    const categories = [
-        { id: "cpu-check", name: "CPU Performance Check", itemsName: "cpu-items", price: 10000, details: getDetailItems("cpu-items") },
-        { id: "mb-check", name: "Motherboard Diagnostics", itemsName: "mb-items", price: 10000, details: getDetailItems("mb-items") },
-        { id: "ram-check", name: "Memory (RAM) Testing", itemsName: "ram-items", price: 10000, details: getDetailItems("ram-items") },
-        { id: "psu-check", name: "Power Supply Unit Check", itemsName: "psu-items", price: 10000, details: getDetailItems("psu-items") },
-        { id: "gpu-check", name: "Graphics & Display Output Testing", itemsName: "gpu-items", price: 10000, details: getDetailItems("gpu-items") }
-    ];
-    
-    for (const category of categories) {
-        if (document.getElementById(category.id).checked) {
-            addCategoryToReport(category.name, category.price, category.details, tbody);
-            totalAmount += category.price;
-            hasItems = true;
-            itemCount++;
-        }
-    }
-    
-    // 빈 공간 조정
-    adjustEmptySpace(itemCount);
-    
-    // 공급가액, 부가세, 총액(세금포함) 계산
-    const supplyAmount = totalAmount;
-    const taxAmount = Math.round(totalAmount * 0.1);
-    const totalWithTax = supplyAmount + taxAmount;
-    
-    document.getElementById("supply-amount").textContent = supplyAmount.toLocaleString() + "원";
-    document.getElementById("tax-amount").textContent = taxAmount.toLocaleString() + "원";
-    document.getElementById("total-with-tax").textContent = totalWithTax.toLocaleString() + "원";
-    
-    // 점검 내역서 표시
-    if (hasItems) {
-        document.getElementById("report-result").style.display = "block";
-    } else {
-        alert("적어도 하나의 항목을 선택해주세요.");
-    }
-    
-    // 함수: 세부 항목 가져오기
-    function getDetailItems(itemsName) {
-        const items = document.getElementsByName(itemsName);
-        const details = [];
-        
-        items.forEach(item => {
-            if (item.checked) {
-                details.push(item.parentElement.textContent.split('(')[0].trim());
-            }
-        });
-        
-        return details;
-    }
-    
-    // 함수: 카테고리 항목 추가
-    function addCategoryToReport(category, price, details, tbody) {
-        const tr = document.createElement("tr");
-        
-        // 카테고리 셀
-        const tdCategory = document.createElement("td");
-        tdCategory.textContent = category;
-        tdCategory.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdCategory);
-        
-        // 세부 내용 셀
-        const tdDesc = document.createElement("td");
-        if (details && details.length > 0) {
-            tdDesc.innerHTML = details.map(detail => 
-                `<span class="detail-item">- ${detail}</span>`
-            ).join('');
+// CSS 파일 로드하기
+async function loadCSS(url) {
+    try {
+        const response = await fetch(url);
+        if (response.ok) {
+            return await response.text();
         } else {
-            tdDesc.textContent = "전체 점검";
+            console.error('CSS 파일을 불러오는데 실패했습니다:', response.statusText);
+            return null;
         }
-        tdDesc.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdDesc);
-        
-        // 금액 셀
-        const tdAmount = document.createElement("td");
-        tdAmount.textContent = price.toLocaleString() + "원";
-        tdAmount.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdAmount);
-        
-        tbody.appendChild(tr);
-    }
-    
-    // 함수: 일반 항목 추가 (출장비용)
-    function addItemToReport(category, description, price, tbody) {
-        const tr = document.createElement("tr");
-        
-        // 카테고리 셀
-        const tdCategory = document.createElement("td");
-        tdCategory.textContent = category;
-        tdCategory.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdCategory);
-        
-        // 세부 내용 셀
-        const tdDesc = document.createElement("td");
-        tdDesc.textContent = description;
-        tdDesc.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdDesc);
-        
-        // 금액 셀
-        const tdAmount = document.createElement("td");
-        tdAmount.textContent = price.toLocaleString() + "원";
-        tdAmount.style.verticalAlign = "middle"; // 수직 가운데 정렬 추가
-        tr.appendChild(tdAmount);
-        
-        tbody.appendChild(tr);
+    } catch (error) {
+        console.error('CSS 파일을 불러오는데 오류가 발생했습니다:', error);
+        return null;
     }
 }
 
-// 빈 공간 조정 함수
-function adjustEmptySpace(itemCount) {
-    const emptySpace = document.getElementById('empty-space');
+// 점검 내역서 생성 함수
+function generateReport() {
+    // 필요한 모든 데이터 수집
+    const customerName = document.getElementById("customer-input").value.trim() || "홍길동";
+    const dateInput = document.getElementById("date-input").value;
+    const formattedDate = dateInput ? formatDate(dateInput) : formatDate(new Date().toISOString().slice(0, 10));
     
-    // 항목 수에 따라 빈 공간 높이 조정
-    if (itemCount <= 1) {
-        emptySpace.style.minHeight = '180px';
-    } else if (itemCount <= 2) {
-        emptySpace.style.minHeight = '150px';
-    } else if (itemCount <= 3) {
-        emptySpace.style.minHeight = '120px';
-    } else if (itemCount <= 4) {
-        emptySpace.style.minHeight = '90px';
-    } else if (itemCount <= 5) {
-        emptySpace.style.minHeight = '60px';
-    } else {
-        emptySpace.style.minHeight = '30px';
+    // 출장비 관련 데이터
+    const visitChecked = document.getElementById("visit-check").checked;
+    const visitPrice = document.getElementById("visit-price").value ? parseInt(document.getElementById("visit-price").value) : 20000;
+    
+    // 각 하드웨어 카테고리 체크 여부 및 가격 확인
+    const categories = [
+        { id: "cpu-check", name: "CPU Performance Check", itemsName: "cpu-items", price: document.getElementById("cpu-price").value ? parseInt(document.getElementById("cpu-price").value) : 10000, details: getDetailItems("cpu-items") },
+        { id: "mb-check", name: "Motherboard Diagnostics", itemsName: "mb-items", price: document.getElementById("mb-price").value ? parseInt(document.getElementById("mb-price").value) : 10000, details: getDetailItems("mb-items") },
+        { id: "ram-check", name: "Memory (RAM) Testing", itemsName: "ram-items", price: document.getElementById("ram-price").value ? parseInt(document.getElementById("ram-price").value) : 10000, details: getDetailItems("ram-items") },
+        { id: "psu-check", name: "Power Supply Unit Check", itemsName: "psu-items", price: document.getElementById("psu-price").value ? parseInt(document.getElementById("psu-price").value) : 10000, details: getDetailItems("psu-items") },
+        { id: "gpu-check", name: "Graphics & Display Output Testing", itemsName: "gpu-items", price: document.getElementById("gpu-price").value ? parseInt(document.getElementById("gpu-price").value) : 10000, details: getDetailItems("gpu-items") }
+    ];
+    
+    // 선택된 항목들 확인
+    let hasItems = visitChecked || categories.some(cat => document.getElementById(cat.id).checked);
+    
+    if (!hasItems) {
+        alert("적어도 하나의 항목을 선택해주세요.");
+        return;
     }
+    
+    // CSS 가져오기 및 새 창 만들기
+    loadCSS('styles.css').then(cssContent => {
+        // 새 창 열기
+        const reportWindow = window.open('', '_blank', 'width=900,height=650');
+        reportWindow.document.write('<html><head><title>컴퓨터 하드웨어 점검 내역서</title>');
+        reportWindow.document.write('<style>');
+        
+        // 가져온 CSS 내용 적용
+        if (cssContent) {
+            reportWindow.document.write(cssContent);
+        } else {
+            // CSS를 가져오지 못했을 경우 기본 스타일 적용
+            reportWindow.document.write(getBackupStyleContent());
+        }
+        
+        reportWindow.document.write('</style></head><body>');
+        
+        // 점검 내역서 내용 생성
+        reportWindow.document.write('<div class="report-container" style="display: block;">');
+        reportWindow.document.write('<div class="report-content">');
+        
+        // 제목
+        reportWindow.document.write('<div class="report-title">점검내역서</div>');
+        
+        // 업체 정보 테이블
+        reportWindow.document.write(`
+            <div class="business-table-container">
+                <table class="business-table">
+                    <tr>
+                        <th>등록번호</th>
+                        <td colspan="3">876-13-01105</td>
+                    </tr>
+                    <tr>
+                        <th>상 호</th>
+                        <td>웰컴 컴퓨터 수리</td>
+                        <th>대표자</th>
+                        <td class="representative-cell">최성현
+                            <img id="seal-image" class="official-seal" alt="도장" src="dojang.png">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>주 소</th>
+                        <td colspan="3">부산시 연제구 연미로 13번길 32, 3층 301호 (연산동)</td>
+                    </tr>
+                    <tr>
+                        <th>업 태</th>
+                        <td>서비스업</td>
+                        <th>종 목</th>
+                        <td>컴퓨터수리, 데이터복구</td>
+                    </tr>
+                    <tr>
+                        <th>전 화</th>
+                        <td colspan="3">070-7642-7624</td>
+                    </tr>
+                </table>
+            </div>
+        `);
+        
+        // 고객 정보
+        reportWindow.document.write(`
+            <div class="customer-info">
+                <p><strong>점검일:</strong> <span id="current-date">${formattedDate}</span></p>
+                <p><strong>고객명:</strong> <span id="customer-name">${customerName}</span> 님</p>
+            </div>
+        `);
+        
+        // 점검 항목 테이블 시작
+        reportWindow.document.write(`
+            <div class="table-container">
+                <table class="report-items">
+                    <thead>
+                        <tr>
+                            <th width="25%">점검 항목</th>
+                            <th width="55%">세부 내용</th>
+                            <th width="20%">금액</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-items-body">
+        `);
+        
+        // 점검 항목 추가
+        let totalAmount = 0;
+        let itemCount = 0;
+        
+        // 출장비 추가
+        if (visitChecked) {
+            reportWindow.document.write(`
+                <tr>
+                    <td style="vertical-align: middle;">출장비</td>
+                    <td style="vertical-align: middle;">현장 방문 서비스</td>
+                    <td style="vertical-align: middle;">${visitPrice.toLocaleString()}원</td>
+                </tr>
+            `);
+            totalAmount += visitPrice;
+            itemCount++;
+        }
+        
+        // 각 하드웨어 카테고리 추가
+        for (const category of categories) {
+            if (document.getElementById(category.id).checked) {
+                let detailsHtml = "";
+                if (category.details && category.details.length > 0) {
+                    detailsHtml = category.details.map(detail => 
+                        `<span class="detail-item">- ${detail}</span>`
+                    ).join('');
+                } else {
+                    detailsHtml = "전체 점검";
+                }
+                
+                reportWindow.document.write(`
+                    <tr>
+                        <td style="vertical-align: middle;">${category.name}</td>
+                        <td style="vertical-align: middle;">${detailsHtml}</td>
+                        <td style="vertical-align: middle;">${category.price.toLocaleString()}원</td>
+                    </tr>
+                `);
+                totalAmount += category.price;
+                itemCount++;
+            }
+        }
+        
+        reportWindow.document.write('</tbody></table>');
+        
+        // 빈 공간 추가
+        let emptySpaceHeight = "180px";
+        if (itemCount <= 1) {
+            emptySpaceHeight = "180px";
+        } else if (itemCount <= 2) {
+            emptySpaceHeight = "150px";
+        } else if (itemCount <= 3) {
+            emptySpaceHeight = "120px";
+        } else if (itemCount <= 4) {
+            emptySpaceHeight = "90px";
+        } else if (itemCount <= 5) {
+            emptySpaceHeight = "60px";
+        } else {
+            emptySpaceHeight = "30px";
+        }
+        
+        reportWindow.document.write(`<div class="empty-space" style="min-height: ${emptySpaceHeight};"></div>`);
+        
+        // 세금 정보 추가
+        const supplyAmount = totalAmount;
+        const taxAmount = Math.round(totalAmount * 0.1);
+        const totalWithTax = supplyAmount + taxAmount;
+        
+        reportWindow.document.write(`
+            <div class="footer-info">
+                <div class="tax-info">
+                    <table>
+                        <tr>
+                            <td width="80%"><strong>공급가액:</strong></td>
+                            <td width="20%">${supplyAmount.toLocaleString()}원</td>
+                        </tr>
+                        <tr>
+                            <td><strong>부가세(10%):</strong></td>
+                            <td>${taxAmount.toLocaleString()}원</td>
+                        </tr>
+                        <tr>
+                            <td><strong>총 금액(부가세 포함):</strong></td>
+                            <td>${totalWithTax.toLocaleString()}원</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <div class="account-info">
+                    <p>입금 계좌 정보</p>
+                    <p class="account-number">기업은행 093-149055-04-014 (최성현)</p>
+                </div>
+                
+                <div class="stamp">
+                    <p>감사합니다.</p>
+                </div>
+            </div>
+        `);
+        
+        reportWindow.document.write('</div>'); // end of table-container
+        reportWindow.document.write('</div>'); // end of report-content
+        
+        // 저장 버튼 추가
+        reportWindow.document.write('<button class="save-button" onclick="window.print()">저장하기</button>');
+        
+        reportWindow.document.write('</div>'); // end of report-container
+        reportWindow.document.write('</body></html>');
+        reportWindow.document.close();
+    });
+}
+
+// 함수: 세부 항목 가져오기
+function getDetailItems(itemsName) {
+    const items = document.getElementsByName(itemsName);
+    const details = [];
+    
+    items.forEach(item => {
+        if (item.checked) {
+            details.push(item.parentElement.textContent.split('(')[0].trim());
+        }
+    });
+    
+    return details;
+}
+
+// 백업 CSS 내용 (CSS 파일을 불러올 수 없을 때 사용)
+function getBackupStyleContent() {
+    return `
+    /* A4 용지 기본 설정 */
+    @page {
+        size: A4;
+        margin: 0;
+    }
+
+    body {
+        font-family: 'Malgun Gothic', sans-serif;
+        line-height: 1.4;
+        margin: 0;
+        padding: 0;
+        background-color: #f5f5f5;
+        font-size: 12px;
+    }
+
+    /* 인쇄용 A4 크기 설정 */
+    .report-container {
+        display: block;
+        width: 210mm;
+        min-height: 297mm;
+        height: auto;
+        margin: 0 auto;
+        background: white;
+        padding: 15mm;
+        box-sizing: border-box;
+        position: relative;
+    }
+
+    .report-content {
+        min-height: 267mm; /* 297mm - 30mm 패딩 */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .report-title {
+        font-size: 24px;
+        font-weight: bold;
+        text-align: center;
+        margin-bottom: 20px;
+        letter-spacing: 10px;
+        padding-left: 10px;
+    }
+
+    .business-info {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 8px;
+    }
+
+    .customer-info {
+        margin-bottom: 15px;
+        position: relative;
+    }
+
+    .report-items {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        font-size: 11px;
+    }
+
+    .report-items th, .report-items td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        white-space: nowrap;
+        vertical-align: middle; /* 수직 가운데 정렬 */
+    }
+
+    .report-items th {
+        background-color: #f2f2f2;
+        text-align: center;
+        font-size: 11px;
+        padding: 6px 4px;
+    }
+
+    .report-items td {
+        font-size: 11px;
+    }
+
+    .report-items td:nth-child(2) {
+        white-space: normal;
+    }
+
+    .report-items td:first-child, .report-items td:last-child {
+        text-align: center; /* 가로 가운데 정렬 */
+    }
+
+    .table-container {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .empty-space {
+        flex-grow: 1;
+        min-height: 20px;
+        border-top: 1px dashed #eee;
+        border-bottom: 1px dashed #eee;
+        margin: 10px 0;
+    }
+
+    .tax-info {
+        margin-top: auto;
+        border-top: 1px solid #ddd;
+        padding-top: 8px;
+    }
+
+    .tax-info table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .tax-info th, .tax-info td {
+        padding: 4px;
+        text-align: right;
+        border: none;
+        white-space: nowrap;
+        font-size: 11px;
+        vertical-align: middle; /* 수직 가운데 정렬 */
+    }
+
+    .account-info {
+        margin-top: 20px;
+        border-top: 1px solid #ddd;
+        padding-top: 10px;
+        font-size: 11px;
+        text-align: center;
+    }
+
+    .account-info p {
+        margin: 5px 0;
+    }
+
+    .account-number {
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .footer-info {
+        margin-top: auto;
+    }
+
+    .stamp {
+        text-align: right;
+        margin-top: 20px;
+        position: relative;
+    }
+
+    .stamp p {
+        margin: 5px 0;
+    }
+
+    .official-seal {
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        top: -15px;
+        right: 10px;
+    }
+
+    .business-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 15px;
+        font-size: 11px;
+    }
+
+    .business-table th, .business-table td {
+        border: 1px solid #ddd;
+        padding: 5px;
+        text-align: center;
+        white-space: nowrap;
+        vertical-align: middle; /* 수직 가운데 정렬 */
+    }
+
+    .business-table th {
+        background-color: #f2f2f2;
+        width: 15%;
+    }
+
+    .date-section {
+        margin-bottom: 15px;
+    }
+
+    .representative-cell {
+        position: relative;
+        padding-right: 60px !important;
+    }
+
+    .detail-item {
+        display: block;
+        margin-bottom: 3px;
+        text-indent: -8px;
+        padding-left: 8px;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+
+    .save-button {
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        text-align: center;
+        text-decoration: none;
+        display: block;
+        font-size: 14px;
+        margin: 4px auto;
+        cursor: pointer;
+        border-radius: 4px;
+        width: 200px;
+    }
+
+    @media print {
+        .save-button {
+            display: none;
+        }
+    }
+    `;
 }
 
 // 초기화 - 모든 세부항목 체크박스에 하위 항목 하나라도 체크하면 상위 체크박스도 체크
@@ -248,4 +565,3 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
-                                  
