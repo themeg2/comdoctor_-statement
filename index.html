@@ -78,6 +78,11 @@
             width: 100%;
         }
         
+        .select-all-btn {
+            background-color: #2196F3;
+            margin-bottom: 10px;
+        }
+        
         /* 인쇄용 A4 크기 설정 */
         .report-container {
             display: none;
@@ -265,6 +270,9 @@
         <h1>컴퓨터 하드웨어 점검 내역서 생성</h1>
         <p>점검할 항목을 선택하시면 점검 내역서가 자동으로 생성됩니다.</p>
         
+        <button class="select-all-btn" onclick="selectAllItems(true)">전체 항목 선택</button>
+        <button class="select-all-btn" onclick="selectAllItems(false)" style="background-color: #f44336;">전체 항목 해제</button>
+        
         <div class="form-section">
             <div class="hardware-item">
                 <label><input type="checkbox" id="visit-check"> 출장비 (20,000원)</label>
@@ -402,6 +410,31 @@
     </div>
 
     <script>
+        // 전체 항목 선택/해제 기능
+        function selectAllItems(checked) {
+            // 출장비 체크박스
+            document.getElementById("visit-check").checked = checked;
+            
+            // 모든 메인 카테고리 체크박스
+            const categories = ['cpu', 'mb', 'ram', 'psu', 'gpu'];
+            
+            categories.forEach(cat => {
+                const mainCheckbox = document.getElementById(`${cat}-check`);
+                mainCheckbox.checked = checked;
+                
+                // 서브 항목들 체크/언체크
+                checkAllSubItems(`${cat}-items`, checked);
+                
+                // 세부 항목 표시/숨김
+                const details = document.getElementById(`${cat}-details`);
+                if (checked) {
+                    details.style.display = "block";
+                } else {
+                    details.style.display = "none";
+                }
+            });
+        }
+        
         // 저장하기 기능 (현재는 인쇄 다이얼로그를 통해 PDF로 저장 가능)
         function saveToPrint() {
             window.print();
