@@ -347,7 +347,7 @@
                     <td>웰컴 노트북수리</td>
                     <th>대표자</th>
                     <td class="representative-cell">남 태웅
-                        <img src="dojang.png" class="official-seal" alt="도장">
+                        <img id="seal-image" class="official-seal" alt="도장">
                     </td>
                 </tr>
                 <tr>
@@ -410,6 +410,22 @@
     </div>
 
     <script>
+        // GitHub 저장소 정보
+        const repoUrl = 'https://themeg2.github.io/comdoctor_-statement';
+        
+        // 페이지 로드 시 도장 이미지 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            // 도장 이미지 경로 설정 (GitHub 저장소에서 가져옴)
+            const sealImageUrl = `${repoUrl}/dojang.png`;
+            document.getElementById('seal-image').src = sealImageUrl;
+            
+            // 이미지 로드 오류 처리
+            document.getElementById('seal-image').onerror = function() {
+                console.error('도장 이미지를 불러오는데 실패했습니다:', sealImageUrl);
+                this.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII='; // 투명 이미지로 대체
+            };
+        });
+        
         // 전체 항목 선택/해제 기능
         function selectAllItems(checked) {
             // 출장비 체크박스
