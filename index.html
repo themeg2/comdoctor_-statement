@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>컴퓨터 하드웨어 점검 내역서</title>
+    <style>
+        /* A4 용지 기본 설정 */
+        @page {
+            size: A4;
+            margin: 0;
+        }
+        
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            font-size: 12px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        
+        h1, h2 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .form-section {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        
+        .hardware-item {
+            margin-bottom: 8px;
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .hardware-item label {
+            display: block;
+            margin-bottom: 3px;
+            font-weight: bold;
+        }
+        
+        .hardware-details {
+            margin-left: 20px;
+            margin-top: 3px;
+            display: none;
+        }
+        
+        input[type="checkbox"] {
+            margin-right: 6px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+            width: 100%;
+        }
+        
+        /* 인쇄용 A4 크기 설정 */
+        .report-container {
+            display: none;
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: white;
+            padding: 15mm;
+            box-sizing: border-box;
+            position: relative;
+        }
+        
+        .report-title {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 10px;
+            padding-left: 10px;
+        }
+        
+        .business-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
+        }
+        
+        .customer-info {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .report-items {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+        
+        .report-items th, .report-items td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            white-space: nowrap;
+            vertical-align: top;
+        }
+        
+        .report-items th {
+            background-color: #f2f2f2;
+            text-align: center;
+            font-size: 11px;
+            padding: 6px 4px;
+        }
+        
+        .report-items td {
+            font-size: 11px;
+        }
+        
+        .report-items td:nth-child(2) {
+            white-space: normal;
+        }
+        
+        .report-items td:first-child, .report-items td:last-child {
+            text-align: center;
+        }
+        
+        .report-total {
+            text-align: right;
+            font-weight: bold;
+            margin-top: 15px;
+            font-size: 1.1em;
+        }
+        
+        .stamp {
+            text-align: right;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .stamp img {
+            width: 80px;
+            height: auto;
+        }
+        
+        .save-button {
+            background-color: #2196F3;
+            margin-top: 15px;
+        }
+        
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .container {
+                display: none;
+            }
+            
+            .report-container {
+                display: block !important;
+                padding: 10mm;
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                width: 190mm;
+                height: 277mm;
+            }
+            
+            .save-button {
+                display: none;
+            }
+        }
+        
+        .official-seal {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            top: -15px;
+            right: 10px;
+        }
+        
+        .business-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+            font-size: 11px;
+        }
+        
+        .business-table th, .business-table td {
+            border: 1px solid #ddd;
+            padding: 5px;
+            text-align: center;
+            white-space: nowrap;
+        }
+        
+        .business-table th {
+            background-color: #f2f2f2;
+            width: 15%;
+        }
+        
+        .date-section {
+            margin-bottom: 15px;
+        }
+        
+        .tax-info {
+            margin-top: 15px;
+            border-top: 1px solid #ddd;
+            padding-top: 8px;
+        }
+        
+        .tax-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .tax-info th, .tax-info td {
+            padding: 4px;
+            text-align: right;
+            border: none;
+            white-space: nowrap;
+            font-size: 11px;
+        }
+        
+        .representative-cell {
+            position: relative;
+            padding-right: 60px !important;
+        }
+        
+        .detail-item {
+            display: block;
+            margin-bottom: 3px;
+            text-indent: -8px;
+            padding-left: 8px;
+            font-size: 10px;
+            line-height: 1.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>컴퓨터 하드웨어 점검 내역서 생성</h1>
+        <p>점검할 항목을 선택하시면 점검 내역서가 자동으로 생성됩니다.</p>
+        
+        <div class="form-section">
+            <div class="hardware-item">
+                <label><input type="checkbox" id="visit-check"> 출장비 (20,000원)</label>
+            </div>
+            
+            <div class="hardware-item">
+                <label><input type="checkbox" id="cpu-check" onclick="toggleDetails('cpu-details'); checkAllSubItems('cpu-items', this.checked)"> CPU Performance Check (10,000원)</label>
+                <div id="cpu-details" class="hardware-details">
+                    <label><input type="checkbox" name="cpu-items" value="10000"> CPU Temperature 측정 및 Thermal throttling 확인</label><br>
+                    <label><input type="checkbox" name="cpu-items" value="0"> Basic performance benchmark 테스트</label><br>
+                    <label><input type="checkbox" name="cpu-items" value="0"> CPU Fan 작동 상태 및 RPM 확인</label><br>
+                    <label><input type="checkbox" name="cpu-items" value="0"> Clock speed 정상 동작 확인</label><br>
+                </div>
+            </div>
+            
+            <div class="hardware-item">
+                <label><input type="checkbox" id="mb-check" onclick="toggleDetails('mb-details'); checkAllSubItems('mb-items', this.checked)"> Motherboard Diagnostics (10,000원)</label>
+                <div id="mb-details" class="hardware-details">
+                    <label><input type="checkbox" name="mb-items" value="10000"> Power delivery 안정성 및 POST 테스트</label><br>
+                    <label><input type="checkbox" name="mb-items" value="0"> Main slots(RAM, PCIe, SATA) connectivity 확인</label><br>
+                    <label><input type="checkbox" name="mb-items" value="0"> BIOS/UEFI settings 점검</label><br>
+                    <label><input type="checkbox" name="mb-items" value="0"> Board damage & capacitor status 확인</label><br>
+                </div>
+            </div>
+            
+            <div class="hardware-item">
+                <label><input type="checkbox" id="ram-check" onclick="toggleDetails('ram-details'); checkAllSubItems('ram-items', this.checked)"> Memory (RAM) Testing (10,000원)</label>
+                <div id="ram-details" class="hardware-details">
+                    <label><input type="checkbox" name="ram-items" value="10000"> RAM recognition & capacity verification</label><br>
+                    <label><input type="checkbox" name="ram-items" value="0"> Memory error diagnostics</label><br>
+                    <label><input type="checkbox" name="ram-items" value="0"> Compatibility & dual-channel 구성 점검</label><br>
+                    <label><input type="checkbox" name="ram-items" value="0"> Stability testing under load</label><br>
+                </div>
+            </div>
+            
+            <div class="hardware-item">
+                <label><input type="checkbox" id="psu-check" onclick="toggleDetails('psu-details'); checkAllSubItems('psu-items', this.checked)"> Power Supply Unit Check (10,000원)</label>
+                <div id="psu-details" class="hardware-details">
+                    <label><input type="checkbox" name="psu-items" value="10000"> Power stability & output testing</label><br>
+                    <label><input type="checkbox" name="psu-items" value="0"> Voltage rails (12V, 5V, 3.3V) 확인</label><br>
+                    <label><input type="checkbox" name="psu-items" value="0"> Cable & connector inspection</label><br>
+                    <label><input type="checkbox" name="psu-items" value="0"> Efficiency under load 테스트</label><br>
+                </div>
+            </div>
+            
+            <div class="hardware-item">
+                <label><input type="checkbox" id="gpu-check" onclick="toggleDetails('gpu-details'); checkAllSubItems('gpu-items', this.checked)"> Graphics & Display Output Testing (10,000원)</label>
+                <div id="gpu-details" class="hardware-details">
+                    <label><input type="checkbox" name="gpu-items" value="10000"> GPU recognition & driver status check</label><br>
+                    <label><input type="checkbox" name="gpu-items" value="0"> Resolution & output ports 테스트</label><br>
+                    <label><input type="checkbox" name="gpu-items" value="0"> Graphics performance benchmark</label><br>
+                    <label><input type="checkbox" name="gpu-items" value="0"> Multi-display compatibility 점검</label><br>
+                    <label><input type="checkbox" name="gpu-items" value="0"> Display quality & refresh rate 확인</label><br>
+                </div>
+            </div>
+        </div>
+        
+        <button onclick="generateReport()">점검 내역서 생성하기</button>
+    </div>
+    
+    <div id="report-result" class="report-container">
+        <div class="report-title">점검내역서</div>
+        
+        <div class="business-table-container">
+            <table class="business-table">
+                <tr>
+                    <th>등록번호</th>
+                    <td colspan="3">876-13-01105</td>
+                </tr>
+                <tr>
+                    <th>상 호</th>
+                    <td>웰컴 노트북수리</td>
+                    <th>대표자</th>
+                    <td class="representative-cell">남 태웅
+                        <img src="dojang.png" class="official-seal" alt="도장">
+                    </td>
+                </tr>
+                <tr>
+                    <th>주 소</th>
+                    <td colspan="3">동래구 명장동 시실로 211번길 38</td>
+                </tr>
+                <tr>
+                    <th>업 태</th>
+                    <td>서비스/소매</td>
+                    <th>종 목</th>
+                    <td>컴퓨터수리 및 판매</td>
+                </tr>
+                <tr>
+                    <th>전 화</th>
+                    <td colspan="3">070-7642-7624</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="customer-info">
+            <p><strong>점검일:</strong> <span id="current-date">2025년 3월 31일</span></p>
+            <p><strong>고객명:</strong> <span id="customer-name">홍길동</span> 님</p>
+        </div>
+        
+        <table class="report-items">
+            <thead>
+                <tr>
+                    <th width="25%">점검 항목</th>
+                    <th width="55%">세부 내용</th>
+                    <th width="20%">금액</th>
+                </tr>
+            </thead>
+            <tbody id="report-items-body">
+                <!-- 여기에 동적으로 항목이 추가됩니다 -->
+            </tbody>
+        </table>
+        
+        <div class="tax-info">
+            <table>
+                <tr>
+                    <td width="80%"><strong>공급가액:</strong></td>
+                    <td width="20%" id="supply-amount">0원</td>
+                </tr>
+                <tr>
+                    <td><strong>부가세(10%):</strong></td>
+                    <td id="tax-amount">0원</td>
+                </tr>
+                <tr>
+                    <td><strong>총 금액(부가세 포함):</strong></td>
+                    <td id="total-with-tax">0원</td>
+                </tr>
+            </table>
+        </div>
+        
+        <div class="stamp">
+            <p>감사합니다.</p>
+        </div>
+        
+        <button class="save-button" onclick="saveToPrint()">저장하기</button>
+    </div>
+
+    <script>
+        // 저장하기 기능 (현재는 인쇄 다이얼로그를 통해 PDF로 저장 가능)
+        function saveToPrint() {
+            window.print();
+        }
+        
+        // 세부 항목 토글 기능
+        function toggleDetails(id) {
+            const details = document.getElementById(id);
+            if (details.style.display === "block") {
+                details.style.display = "none";
+            } else {
+                details.style.display = "block";
+            }
+        }
+        
+        // 모든 하위 항목 체크/해제 기능
+        function checkAllSubItems(itemsName, checked) {
+            const items = document.getElementsByName(itemsName);
+            for (const item of items) {
+                item.checked = checked;
+            }
+        }
+        
+        // 점검 내역서 생성 함수
+        function generateReport() {
+            // 테이블 내용 초기화
+            const tbody = document.getElementById("report-items-body");
+            tbody.innerHTML = "";
+            
+            // 고객명 입력 받기
+            const customerName = prompt("고객명을 입력해주세요:", "홍길동");
+            if (customerName) {
+                document.getElementById("customer-name").textContent = customerName;
+            }
+            
+            // 현재 날짜 설정
+            const today = new Date();
+            const dateString = today.getFullYear() + "년 " + 
+                              (today.getMonth() + 1) + "월 " + 
+                              today.getDate() + "일";
+            document.getElementById("current-date").textContent = dateString;
+            
+            let totalAmount = 0;
+            let hasItems = false;
+            
+            // 출장비 추가
+            if (document.getElementById("visit-check").checked) {
+                addItemToReport("출장비", "현장 방문 서비스", 20000, tbody);
+                totalAmount += 20000;
+                hasItems = true;
+            }
+            
+            // 각 하드웨어 카테고리 체크 여부 확인
+            const categories = [
+                { id: "cpu-check", name: "CPU Performance Check", itemsName: "cpu-items", price: 10000, details: getDetailItems("cpu-items") },
+                { id: "mb-check", name: "Motherboard Diagnostics", itemsName: "mb-items", price: 10000, details: getDetailItems("mb-items") },
+                { id: "ram-check", name: "Memory (RAM) Testing", itemsName: "ram-items", price: 10000, details: getDetailItems("ram-items") },
+                { id: "psu-check", name: "Power Supply Unit Check", itemsName: "psu-items", price: 10000, details: getDetailItems("psu-items") },
+                { id: "gpu-check", name: "Graphics & Display Output Testing", itemsName: "gpu-items", price: 10000, details: getDetailItems("gpu-items") }
+            ];
+            
+            for (const category of categories) {
+                if (document.getElementById(category.id).checked) {
+                    addCategoryToReport(category.name, category.price, category.details, tbody);
+                    totalAmount += category.price;
+                    hasItems = true;
+                }
+            }
+            
+            // 공급가액, 부가세, 총액(세금포함) 계산
+            const supplyAmount = totalAmount;
+            const taxAmount = Math.round(totalAmount * 0.1);
+            const totalWithTax = supplyAmount + taxAmount;
+            
+            document.getElementById("supply-amount").textContent = supplyAmount.toLocaleString() + "원";
+            document.getElementById("tax-amount").textContent = taxAmount.toLocaleString() + "원";
+            document.getElementById("total-with-tax").textContent = totalWithTax.toLocaleString() + "원";
+            
+            // 점검 내역서 표시
+            if (hasItems) {
+                document.getElementById("report-result").style.display = "block";
+            } else {
+                alert("적어도 하나의 항목을 선택해주세요.");
+            }
+            
+            // 함수: 세부 항목 가져오기
+            function getDetailItems(itemsName) {
+                const items = document.getElementsByName(itemsName);
+                const details = [];
+                
+                items.forEach(item => {
+                    if (item.checked) {
+                        details.push(item.parentElement.textContent.split('(')[0].trim());
+                    }
+                });
+                
+                return details;
+            }
+            
+            // 함수: 카테고리 항목 추가
+            function addCategoryToReport(category, price, details, tbody) {
+                const tr = document.createElement("tr");
+                
+                // 카테고리 셀
+                const tdCategory = document.createElement("td");
+                tdCategory.textContent = category;
+                tr.appendChild(tdCategory);
+                
+                // 세부 내용 셀
+                const tdDesc = document.createElement("td");
+                if (details && details.length > 0) {
+                    tdDesc.innerHTML = details.map(detail => 
+                        `<span class="detail-item">- ${detail}</span>`
+                    ).join('');
+                } else {
+                    tdDesc.textContent = "전체 점검";
+                }
+                tr.appendChild(tdDesc);
+                
+                // 금액 셀
+                const tdAmount = document.createElement("td");
+                tdAmount.textContent = price.toLocaleString() + "원";
+                tr.appendChild(tdAmount);
+                
+                tbody.appendChild(tr);
+            }
+            
+            // 함수: 일반 항목 추가 (출장비용)
+            function addItemToReport(category, description, price, tbody) {
+                const tr = document.createElement("tr");
+                
+                // 카테고리 셀
+                const tdCategory = document.createElement("td");
+                tdCategory.textContent = category;
+                tr.appendChild(tdCategory);
+                
+                // 세부 내용 셀
+                const tdDesc = document.createElement("td");
+                tdDesc.textContent = description;
+                tr.appendChild(tdDesc);
+                
+                // 금액 셀
+                const tdAmount = document.createElement("td");
+                tdAmount.textContent = price.toLocaleString() + "원";
+                tr.appendChild(tdAmount);
+                
+                tbody.appendChild(tr);
+            }
+        }
+        
+        // 초기화 - 모든 세부항목 체크박스에 하위 항목 하나라도 체크하면 상위 체크박스도 체크
+        document.addEventListener('DOMContentLoaded', function() {
+            const categories = ['cpu', 'mb', 'ram', 'psu', 'gpu'];
+            
+            categories.forEach(cat => {
+                const items = document.getElementsByName(`${cat}-items`);
+                
+                items.forEach(item => {
+                    item.addEventListener('change', function() {
+                        const mainCheckbox = document.getElementById(`${cat}-check`);
+                        
+                        // 하위 항목이 하나라도 체크되어 있으면 상위 체크박스 체크
+                        let anyChecked = false;
+                        for (const subItem of items) {
+                            if (subItem.checked) {
+                                anyChecked = true;
+                                break;
+                            }
+                        }
+                        
+                        mainCheckbox.checked = anyChecked;
+                        
+                        // 상위 체크박스가 체크되면 세부 항목 표시
+                        if (anyChecked && document.getElementById(`${cat}-details`).style.display !== "block") {
+                            toggleDetails(`${cat}-details`);
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>
