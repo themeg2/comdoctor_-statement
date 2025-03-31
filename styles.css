@@ -1,4 +1,4 @@
-/* A4 용지 기본 설정 */
+/* 기본 설정 */
 @page {
     size: A4;
     margin: 0;
@@ -13,6 +13,7 @@ body {
     font-size: 12px;
 }
 
+/* 컨테이너 스타일 */
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -27,6 +28,7 @@ h1, h2 {
     margin-bottom: 15px;
 }
 
+/* 폼 섹션 스타일 */
 .form-section {
     margin-bottom: 15px;
     border: 1px solid #ddd;
@@ -75,6 +77,7 @@ input[type="checkbox"] {
     margin-right: 6px;
 }
 
+/* 버튼 스타일 */
 button {
     background-color: #4CAF50;
     color: white;
@@ -95,6 +98,14 @@ button {
     margin-bottom: 10px;
 }
 
+.save-button {
+    background-color: #2196F3;
+    width: 200px;
+    margin: 15px auto 4px auto;
+    display: block;
+}
+
+/* 고객 정보 섹션 스타일 */
 .customer-input-section {
     margin-bottom: 15px;
     padding: 10px;
@@ -118,7 +129,7 @@ button {
     box-sizing: border-box;
 }
 
-/* 인쇄용 A4 크기 설정 */
+/* 보고서 컨테이너 스타일 */
 .report-container {
     display: none;
     width: 210mm;
@@ -146,19 +157,45 @@ button {
     padding-left: 10px;
 }
 
-.business-info {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 8px;
-}
-
 .customer-info {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
     position: relative;
+    background-color: #f9f9f9;
+    border: 1px solid #e9ecef;
+    border-radius: 5px;
+    padding: 15px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
+.customer-info p {
+    margin: 8px 0;
+    font-size: 13px;
+    color: #333;
+    display: flex;
+    align-items: center;
+}
+
+.customer-info strong {
+    display: inline-block;
+    width: 70px;
+    color: #555;
+    font-weight: 600;
+}
+
+.customer-info span {
+    font-weight: 500;
+    color: #2980b9;
+    margin-left: 5px;
+}
+
+/* 테이블 컨테이너 스타일 */
+.table-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 보고서 항목 테이블 스타일 */
 .report-items {
     width: 100%;
     border-collapse: collapse;
@@ -169,8 +206,7 @@ button {
 .report-items th, .report-items td {
     border: 1px solid #ddd;
     padding: 5px;
-    white-space: nowrap;
-    vertical-align: middle; /* 수직 가운데 정렬 */
+    vertical-align: middle;
 }
 
 .report-items th {
@@ -189,13 +225,7 @@ button {
 }
 
 .report-items td:first-child, .report-items td:last-child {
-    text-align: center; /* 가로 가운데 정렬 */
-}
-
-.table-container {
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    text-align: center;
 }
 
 .empty-space {
@@ -206,94 +236,7 @@ button {
     margin: 10px 0;
 }
 
-.tax-info {
-    margin-top: auto;
-    border-top: 1px solid #ddd;
-    padding-top: 8px;
-}
-
-.tax-info table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.tax-info th, .tax-info td {
-    padding: 4px;
-    text-align: right;
-    border: none;
-    white-space: nowrap;
-    font-size: 11px;
-    vertical-align: middle; /* 수직 가운데 정렬 */
-}
-
-.account-info {
-    margin-top: 20px;
-    border-top: 1px solid #ddd;
-    padding-top: 10px;
-    font-size: 11px;
-    text-align: center;
-}
-
-.account-info p {
-    margin: 5px 0;
-}
-
-.account-number {
-    font-weight: bold;
-    font-size: 12px;
-}
-
-.footer-info {
-    margin-top: auto;
-}
-
-.stamp {
-    text-align: right;
-    margin-top: 20px;
-    position: relative;
-}
-
-.stamp p {
-    margin: 5px 0;
-}
-
-.official-seal {
-    width: 50px;
-    height: 50px;
-    position: absolute;
-    top: -15px;
-    right: 10px;
-}
-
-.business-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 15px;
-    font-size: 11px;
-}
-
-.business-table th, .business-table td {
-    border: 1px solid #ddd;
-    padding: 5px;
-    text-align: center;
-    white-space: nowrap;
-    vertical-align: middle; /* 수직 가운데 정렬 */
-}
-
-.business-table th {
-    background-color: #f2f2f2;
-    width: 15%;
-}
-
-.date-section {
-    margin-bottom: 15px;
-}
-
-.representative-cell {
-    position: relative;
-    padding-right: 60px !important;
-}
-
+/* 세부 항목 스타일 */
 .detail-item {
     display: block;
     margin-bottom: 3px;
@@ -303,48 +246,287 @@ button {
     line-height: 1.3;
 }
 
-.save-button {
-    background-color: #2196F3;
-    color: white;
-    border: none;
-    padding: 8px 12px;
-    text-align: center;
-    text-decoration: none;
-    display: block;
-    font-size: 14px;
-    margin: 4px auto;
-    cursor: pointer;
-    border-radius: 4px;
-    width: 200px;
-    margin-top: 15px;
+/* 세금 정보 스타일 */
+.tax-info {
+    margin-top: auto;
+    padding-top: 8px;
+    width: 100%;
 }
 
-@media print {
-    html, body {
-        width: 210mm;
-        height: 297mm;
-        margin: 0;
-        padding: 0;
-    }
-    
-    .container {
-        display: none;
-    }
-    
-    .report-container {
-        display: block !important;
-        padding: 10mm;
-        margin: 0;
-        border: none;
-        box-shadow: none;
-        width: 190mm;
-        height: 277mm;
-        page-break-after: always;
-    }
-    
-    .save-button {
-        display: none;
-    }
+.tax-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+}
+
+.tax-header th {
+    background-color: #f8f8f8;
+    color: #333;
+    font-size: 12px;
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+.tax-table td {
+    padding: 6px 10px;
+    border-bottom: 1px solid #eee;
+    font-size: 11px;
+    vertical-align: middle;
+}
+
+.amount {
+    text-align: right;
+    font-weight: bold;
+}
+
+.total-row {
+    background-color: #f8f8f8;
+}
+
+.total-amount {
+    text-align: right;
+    font-weight: bold;
+    font-size: 12px;
+    color: #e74c3c;
+}
+
+.tax-note {
+    font-size: 9px;
+    color: #666;
+    margin-top: 5px;
+    padding: 5px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    line-height: 1.3;
+}
+
+/* 결제 정보 스타일 */
+.payment-info {
+    margin-top: 15px;
+    border-top: 1px solid #eee;
+    padding-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.account-info, .receipt-info {
+    width: 48%;
+    padding: 8px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 3px;
+    box-sizing: border-box;
+}
+
+.info-title {
+    font-weight: bold;
+    font-size: 11px;
+    margin: 0 0 8px 0;
+    color: #333;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.account-number {
+    font-weight: bold;
+    font-size: 12px;
+    color: #2980b9;
+    margin: 5px 0;
+}
+
+.receipt-info ul {
+    margin: 5px 0;
+    padding-left: 15px;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+.receipt-info li {
+    margin-bottom: 3px;
+}
+
+/* 도장 및 감사 인사 스타일 */
+.stamp {
+    text-align: center;
+    margin-top: 20px;
+    position: relative;
+    border-top: 1px dashed #ddd;
+    padding-top: 15px;
+}
+
+.thanks-message {
+    font-size: 14px;
+    font-weight: bold;
+    color: #333;
+    margin: 5px 0;
+}
+
+.official-seal {
+    width: 45px;
+    height: 45px;
+    position: absolute;
+    right: 0;
+    top: -5px;
+}
+
+/* 회사 정보 헤더 스타일 */
+.business-table-container {
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.business-header {
+    background: linear-gradient(to right, #f8f9fa, #e9ecef);
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.business-logo {
+    display: flex;
+    align-items: center;
+}
+
+.logo-placeholder {
+    width: 40px;
+    height: 40px;
+    background-color: #2980b9;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: bold;
+    margin-right: 12px;
+}
+
+.business-name {
+    font-size: 18px;
+    margin: 0;
+    color: #333;
+    font-weight: bold;
+}
+
+.business-stamp {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
+.representative {
+    font-size: 12px;
+    margin-right: 50px;
+    color: #555;
+}
+
+.business-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0;
+    background-color: white;
+}
+
+.business-info-item {
+    padding: 10px 15px;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+}
+
+.business-info-item:nth-child(odd) {
+    border-right: 1px solid #eee;
+}
+
+.business-info-item.full-width {
+    grid-column: span 2;
+    border-right: none;
+}
+
+.info-label {
+    font-weight: bold;
+    color: #555;
+    width: 70px;
+    font-size: 11px;
+}
+
+.info-value {
+    flex: 1;
+    color: #333;
+    font-size: 11px;
+}
+
+/* 서비스 설명 섹션 스타일 */
+.simple-service-section {
+    margin: 15px 0;
+    padding: 12px 15px;
+    background-color: #f9f9fa;
+    border-top: 1px solid #e0e0e0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.section-title {
+    color: #2c3e50;
+    font-size: 15px;
+    text-align: center;
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #eaeaea;
+}
+
+.intro-text {
+    font-size: 12px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.bullet-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 10px 0;
+}
+
+.bullet-list li {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.bullet-point {
+    color: #2980b9;
+    font-weight: bold;
+    margin-right: 5px;
+    flex-shrink: 0;
+}
+
+.bullet-text {
+    color: #333;
+}
+
+.conclusion-text {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #333;
+    background-color: #e8f4f8;
+    padding: 10px;
+    border-left: 3px solid #3498db;
+    margin: 0;
+}
+
+/* 푸터 정보 스타일 */
+.footer-info {
+    margin-top: auto;
 }
 
 /* 모달 창 스타일 */
@@ -399,40 +581,177 @@ button {
     padding: 10px 0;
 }
 
-/* 인쇄 설정 조정 */
-@media print {
-    .container, .modal-close, .save-button {
-        display: none !important;
-    }
-    
-    .modal-overlay {
-        position: absolute;
-        background-color: white;
-        overflow: visible;
-        height: auto;
-        display: block !important;
-    }
-    
-    .modal-container {
+/* 미디어 쿼리 조정 */
+@media (max-width: 768px) {
+    .account-info, .receipt-info {
         width: 100%;
-        max-width: none;
-        margin: 0;
-        padding: 0;
-        box-shadow: none;
-        border-radius: 0;
-    }
-    
-    .modal-body {
-        max-height: none;
-        overflow: visible;
-    }
-    
-    .report-container {
-        display: block !important;
-        margin: 0;
-        padding: 10mm; 
-        width: 190mm;
-        height: auto;
-        box-shadow: none;
+        margin-bottom: 10px;
     }
 }
+
+/* 인쇄 설정 조정 */
+@media print {
+    html, body {
+        width: 210mm;
+        height: 297mm;
+        margin: 0;
+        padding: 0;
+    }
+    
+.container, .modal-close, .save-button {
+    display: none !important;
+}
+
+.modal-overlay {
+    position: absolute;
+    background-color: white;
+    overflow: visible;
+    height: auto;
+    display: block !important;
+}
+
+.modal-container {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    border-radius: 0;
+}
+
+.modal-body {
+    max-height: none;
+    overflow: visible;
+}
+
+.report-container {
+    display: block !important;
+    margin: 0;
+    padding: 10mm; 
+    width: 190mm;
+    height: auto;
+    box-shadow: none;
+}
+
+.simple-service-section {
+    background-color: #f9f9fa !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+}
+
+.conclusion-text {
+    background-color: #e8f4f8 !important;
+    border-left: 3px solid #3498db !important;
+    -webkit-print-color-adjust: exact;
+    color-adjust: exact;
+}
+}
+
+.service-description {
+    font-family: 'Malgun Gothic', sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    border-left: 4px solid #3498db;
+    font-size: 11px;
+  }
+  
+  .service-title {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #e9ecef;
+    text-align: center;
+  }
+  
+  .service-intro {
+    font-size: 11px;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    color: #333;
+  }
+  
+  .highlight {
+    color: #2980b9;
+    font-weight: 600;
+  }
+  
+  .service-points {
+    margin: 0 0 10px 0;
+    padding: 0;
+    list-style: none;
+  }
+  
+  .service-point {
+    display: flex;
+    margin-bottom: 8px;
+    background-color: white;
+    padding: 8px 10px;
+    border-radius: 4px;
+  }
+  
+  .bullet {
+    color: #3498db;
+    font-weight: bold;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  
+  .point-content {
+    flex: 1;
+  }
+  
+  .point-title {
+    font-weight: 600;
+    color: #2c3e50;
+    display: inline;
+    font-size: 11px;
+  }
+  
+  .point-description {
+    color: #555;
+    font-size: 11px;
+    line-height: 1.3;
+    display: inline;
+  }
+  
+  .service-conclusion {
+    background-color: #e8f4f8;
+    padding: 10px;
+    border-radius: 4px;
+    border-left: 3px solid #3498db;
+  }
+  
+  .conclusion-content {
+    font-size: 11px;
+    line-height: 1.4;
+    color: #2c3e50;
+    margin: 0;
+  }
+  
+  .expertise-section {
+    margin-top: 8px;
+    font-size: 10px;
+    color: #666;
+    font-style: italic;
+    text-align: right;
+  }
+  
+  @media print {
+    .service-description {
+      background-color: #f8f9fa !important;
+      -webkit-print-color-adjust: exact;
+      color-adjust: exact;
+    }
+    
+    .service-conclusion {
+      background-color: #e8f4f8 !important;
+      -webkit-print-color-adjust: exact;
+      color-adjust: exact;
+    }
+  }

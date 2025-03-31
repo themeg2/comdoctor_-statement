@@ -154,55 +154,132 @@ function generateReport() {
     reportTitle.textContent = '점검내역서';
     reportContent.appendChild(reportTitle);
     
-    // 업체 정보 테이블
-    const businessTableHTML = `
-        <div class="business-table-container">
-            <table class="business-table">
-                <tr>
-                    <th>등록번호</th>
-                    <td colspan="3">876-13-01105</td>
-                </tr>
-                <tr>
-                    <th>상 호</th>
-                    <td>웰컴 컴퓨터 수리</td>
-                    <th>대표자</th>
-                    <td class="representative-cell">최성현
-                        <img id="seal-image" class="official-seal" alt="도장" src="dojang.png">
-                    </td>
-                </tr>
-                <tr>
-                    <th>주 소</th>
-                    <td colspan="3">부산시 연제구 연미로 13번길 32, 3층 301호 (연산동)</td>
-                </tr>
-                <tr>
-                    <th>업 태</th>
-                    <td>서비스업</td>
-                    <th>종 목</th>
-                    <td>컴퓨터수리, 데이터복구</td>
-                </tr>
-                <tr>
-                    <th>전 화</th>
-                    <td colspan="3">070-7642-7624</td>
-                </tr>
-            </table>
-        </div>
-    `;
     
+    // 업체 정보 테이블 개선
+    const businessTableHTML = `
+    <div class="business-table-container">
+        <div class="business-header">
+            <div class="business-logo">
+                <div class="logo-placeholder">W</div>
+                <h2 class="business-name">웰컴 컴퓨터 수리</h2>
+            </div>
+            <div class="business-stamp">
+                <div class="representative">대표자: 최성현</div>
+                <img id="seal-image" class="official-seal" alt="도장" src="dojang.png">
+            </div>
+        </div>
+        
+        <div class="business-info-grid">
+            <div class="business-info-item">
+                <span class="info-label">등록번호</span>
+                <span class="info-value">876-13-01105</span>
+            </div>
+            <div class="business-info-item">
+                <span class="info-label">전화번호</span>
+                <span class="info-value">070-7642-7624</span>
+            </div>
+            <div class="business-info-item">
+                <span class="info-label">업태</span>
+                <span class="info-value">서비스업</span>
+            </div>
+            <div class="business-info-item">
+                <span class="info-label">종목</span>
+                <span class="info-value">컴퓨터수리, 데이터복구</span>
+            </div>
+            <div class="business-info-item full-width">
+                <span class="info-label">주소</span>
+                <span class="info-value">부산시 연제구 연미로 13번길 32, 3층 301호 (연산동)</span>
+            </div>
+        </div>
+    </div>
+    `;
+
     const businessTableDiv = document.createElement('div');
     businessTableDiv.innerHTML = businessTableHTML;
     reportContent.appendChild(businessTableDiv.firstElementChild);
     
-    // 고객 정보
     const customerInfoHTML = `
-        <div class="customer-info">
-            <p><strong>점검일:</strong> <span id="current-date">${formattedDate}</span></p>
-            <p><strong>고객명:</strong> <span id="customer-name">${customerName}</span> 님</p>
-        </div>
+    <div class="customer-info">
+        <p><strong>점검일:</strong> <span id="current-date">${formattedDate}</span></p>
+        <p><strong>고객명:</strong> <span id="customer-name">${customerName}</span> 님</p>
+    </div>
     `;
     
     const customerInfoDiv = document.createElement('div');
     customerInfoDiv.innerHTML = customerInfoHTML;
     reportContent.appendChild(customerInfoDiv.firstElementChild);
+    
+    // 진단 점검 내역서 추가 (고객명 아래, 점검 항목 위에 배치)
+    const serviceExplanationHTML = `
+    <div class="service-description">
+        <h3 class="service-title">진단 점검 내역서</h3>
+        
+        <p class="service-intro">
+        고객님의 컴퓨터를 위해 <span class="highlight">전문 기술력을 활용한 정밀 진단</span>을 
+        완료했습니다. 아래와 같은 전문 진단 과정이 수행되었습니다.
+        </p>
+        
+        <ul class="service-points">
+        <li class="service-point">
+            <span class="bullet">•</span>
+            <div class="point-content">
+            <div class="point-title">정밀 장비 검사: </div>
+            <div class="point-description">
+                일반 진단툴로는 확인 불가능한 하드웨어 상태를 전문 장비로 진단 완료
+            </div>
+            </div>
+        </li>
+        
+        <li class="service-point">
+            <span class="bullet">•</span>
+            <div class="point-content">
+            <div class="point-title">2시간 이상 심층 테스트: </div>
+            <div class="point-description">
+                장시간 스트레스 테스트와 안정성 검사를 통한 잠재적 문제 식별
+            </div>
+            </div>
+        </li>
+        
+        <li class="service-point">
+            <span class="bullet">•</span>
+            <div class="point-content">
+            <div class="point-title">숙련된 기술자 진단: </div>
+            <div class="point-description">
+                10년 이상 경력의 전문 기술자가 직접 수행한 고급 진단 서비스
+            </div>
+            </div>
+        </li>
+        
+        <li class="service-point">
+            <span class="bullet">•</span>
+            <div class="point-content">
+            <div class="point-title">정확한 원인 파악: </div>
+            <div class="point-description">
+                문제의 정확한 원인과 필요한 해결책을 명확히 제시
+            </div>
+            </div>
+        </li>
+        </ul>
+        
+        <div class="service-conclusion">
+        <p class="conclusion-content">
+            고객님께서 수리 진행을 원치 않으시더라도, 아래와 같은 <span class="highlight">진단 서비스</span>가 
+            완료되었습니다. 본 진단은 일반 수리점에서 제공하는 기본 점검과는 다른 
+            <span class="highlight">종합적인 전문 검사</span>로, 정상적인 점검료가 발생합니다. 
+            정확한 원인 파악을 위해 투입된 <span class="highlight">시간, 장비, 전문성</span>에 대한 비용입니다.
+            <span class="highlight">재수리를 원하실 경우</span>, 기존에 진단된 내용을 바탕으로 수리를 진행할 수 있으며, <span class="highlight">점검비</span>는 추가되지 않습니다.
+        </p>
+        </div>
+        
+        <div class="expertise-section">
+        웰컴 컴퓨터 수리: 20년 전통의 컴퓨터 전문 수리점 / 공식 AS점 인증 업체
+        </div>
+    </div>
+    `;
+    
+    const serviceValueSection = document.createElement('div');
+    serviceValueSection.innerHTML = serviceExplanationHTML;
+    reportContent.appendChild(serviceValueSection.firstElementChild);
     
     // 테이블 컨테이너
     const tableContainer = document.createElement('div');
@@ -270,7 +347,7 @@ function generateReport() {
     
     reportItemsTable.appendChild(tableBody);
     tableContainer.appendChild(reportItemsTable);
-    
+
     // 빈 공간 추가
     let emptySpaceHeight = "180px";
     if (itemCount <= 1) {
@@ -297,32 +374,52 @@ function generateReport() {
     const taxAmount = Math.round(totalAmount * 0.1);
     const totalWithTax = supplyAmount + taxAmount;
     
+    // 세금 정보 및 감사인사 부분 업데이트
     const footerInfoHTML = `
         <div class="footer-info">
             <div class="tax-info">
-                <table>
+                <table class="tax-table">
+                    <tr class="tax-header">
+                        <th colspan="2">금액 정보</th>
+                    </tr>
                     <tr>
-                        <td width="80%"><strong>공급가액:</strong></td>
-                        <td width="20%">${supplyAmount.toLocaleString()}원</td>
+                        <td width="70%"><strong>공급가액:</strong></td>
+                        <td width="30%" class="amount">${supplyAmount.toLocaleString()}원</td>
                     </tr>
                     <tr>
                         <td><strong>부가세(10%):</strong></td>
-                        <td>${taxAmount.toLocaleString()}원</td>
+                        <td class="amount">${taxAmount.toLocaleString()}원</td>
                     </tr>
-                    <tr>
-                        <td><strong>총 금액(부가세 포함):</strong></td>
-                        <td>${totalWithTax.toLocaleString()}원</td>
+                    <tr class="total-row">
+                        <td><strong>총 금액:</strong></td>
+                        <td class="total-amount">${totalWithTax.toLocaleString()}원</td>
                     </tr>
                 </table>
+                
+                <div class="tax-note">
+                    <p>※ 부가가치세는 부가가치세법에 따라 재화 및 용역의 공급에 부과되는 세금으로, 
+                    최종 소비자가 부담하는 간접세입니다.<br>※ 사업자는 이를 대신 수납하여 국가에 납부합니다.</p>
+                </div>
             </div>
             
-            <div class="account-info">
-                <p>입금 계좌 정보</p>
-                <p class="account-number">기업은행 093-149055-04-014 (최성현)</p>
+            <div class="payment-info">
+                <div class="account-info">
+                    <p class="info-title">입금 계좌 정보</p>
+                    <p class="account-number">기업은행 093-149055-04-014 (최성현)</p>
+                </div>
+                
+                <div class="receipt-info">
+                    <p class="info-title">현금영수증 및 세금계산서 발급 안내</p>
+                    <ul>
+                        <li>현금 결제 시 현금영수증 발급 가능합니다.</li>
+                        <li>세금계산서는 현금결제 시 발급 가능합니다.</li>
+                        <li>세금계산서는 전자 세금 계산서로 발급됩니다.</li>
+                    </ul>
+                </div>
             </div>
             
             <div class="stamp">
-                <p>감사합니다.</p>
+                <p class="thanks-message">서비스를 이용해 주셔서 감사합니다.</p>
             </div>
         </div>
     `;
