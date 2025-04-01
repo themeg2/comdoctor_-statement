@@ -4,26 +4,23 @@
     <style>
         @page {
           size: A4 portrait;
-          margin: 15mm !important; /* 여백 추가 */
+          margin: 0mm !important;
           marks: none;
         }
         
         @media print {
+          /* 플랫폼별 특수 설정 */
+          @supports (-webkit-appearance:none) {
+            html, body {
+              height: 297mm;
+              width: 210mm;
+            }
+          }
+          
+          /* Chrome, Safari 대응 */
           html, body {
             -webkit-print-color-adjust: exact !important;
             print-color-adjust: exact !important;
-          }
-          
-          .report-content {
-            transform: scale(0.9) !important;
-            transform-origin: top center !important;
-          }
-          
-          /* 페이지 나누기 방지 */
-          .report-container, .report-content, .business-table-container,
-          .service-description, .table-container, .report-items,
-          .tax-info, .payment-info, .footer-info {
-            page-break-inside: avoid !important;
           }
         }
       </style>
@@ -132,24 +129,20 @@
     <script src="scripts.js"></script>
     <script src="report-generator.js"></script>
     <script>
-        // 내역서 생성 후 버튼 이벤트 설정
+        // 내역서 생성 함수의 마지막에 추가
         document.addEventListener('DOMContentLoaded', function() {
-          // 내역서 생성 버튼에 이벤트 리스너 추가
+          // 기존 버튼에 새 이벤트 리스너 추가
           const generateButton = document.querySelector('button[onclick="generateReport()"]');
           if (generateButton) {
-            // 기존 onclick 이벤트를 유지하면서 추가 기능 설정
-            const originalClick = generateButton.onclick;
-            generateButton.onclick = function(e) {
-              if (originalClick) originalClick.call(this, e);
-              
-              // 내역서 생성 후 저장 버튼 이벤트 설정
+            generateButton.addEventListener('click', function() {
+              // 내역서가 생성되면 저장 버튼에 이벤트 연결
               setTimeout(function() {
                 const saveButtons = document.querySelectorAll('.save-button');
                 saveButtons.forEach(function(button) {
                   button.onclick = saveToPrint;
                 });
               }, 500);
-            };
+            });
           }
         });
       </script>
