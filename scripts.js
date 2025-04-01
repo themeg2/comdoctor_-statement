@@ -152,70 +152,102 @@ function adjustEmptySpace(itemCount) {
 
 // 프린트 저장 기능 개선
 function saveToPrint() {
-    // 인쇄 전 모바일/데스크톱 확인 및 최적화
-    const isMobile = isMobileDevice();
-    
     // 내역서 요소 가져오기
     const reportContainer = document.querySelector('.report-container');
-    const reportContent = document.querySelector('.report-content');
     
-    if (!reportContainer || !reportContent) return;
-    
-    // 모바일에서는 더 작은 스케일로 조정
-    if (isMobile) {
-        reportContent.style.transform = 'scale(0.80)';
-    } else {
-        // 기존 방식으로 A4에 맞추기
-        adjustReportToFitA4();
+    if (!reportContainer) {
+        alert('내역서를 찾을 수 없습니다.');
+        return;
     }
     
-    // 약간의 시간 간격을 두고 인쇄 다이얼로그 실행
+    // 불필요한 버튼 숨기기
+    const buttons = reportContainer.querySelectorAll('button');
+    buttons.forEach(button => {
+        button.style.display = 'none';
+    });
+    
+    // 인쇄 다이얼로그 실행 전에 레이아웃 최적화
+    optimizePrintLayout();
+    
+    // 인쇄 다이얼로그 실행
     setTimeout(() => {
         window.print();
+        
+        // 인쇄 후 버튼 다시 표시
+        setTimeout(() => {
+            buttons.forEach(button => {
+                button.style.display = 'block';
+            });
+        }, 1000);
     }, 300);
 }
 
-// 함수: 세부 항목 가져오기
-function getDetailItems(itemsName) {
-    const items = document.getElementsByName(itemsName);
-    const details = [];
+// 인쇄 레이아웃 최적화 함수
+function optimizePrintLayout() {
+    // 추가 스타일을 적용할 스타일 요소 생성
+    let printStyle = document.getElementById('print-style');
     
-    items.forEach(item => {
-        if (item.checked) {
-            details.push(item.parentElement.textContent.trim());
+    if (!printStyle) {
+        printStyle = document.createElement('style');
+        printStyle.id = 'print-style';
+        document.head.appendChild(printStyle);
+    }
+    
+    // 인쇄 시 URL, 날짜, 페이지 번호 등 숨기기 위한 스타일 추가
+    printStyle.textContent = `
+        @page {
+            size: A4 portrait;
+            margin: 0mm !important;
+            marks: none;
         }
-    });
-    
-    return details;
-}
-
-// 초기화 - 모든 세부항목 체크박스에 하위 항목 하나라도 체크하면 상위 체크박스도 체크
-document.addEventListener('DOMContentLoaded', function() {
-    const categories = ['cpu', 'mb', 'ram', 'psu', 'gpu'];
-    
-    categories.forEach(cat => {
-        const items = document.getElementsByName(`${cat}-items`);
         
-        items.forEach(item => {
-            item.addEventListener('change', function() {
-                const mainCheckbox = document.getElementById(`${cat}-check`);
-                
-                // 하위 항목이 하나라도 체크되어 있으면 상위 체크박스 체크
-                let anyChecked = false;
-                for (const subItem of items) {
-                    if (subItem.checked) {
-                        anyChecked = true;
-                        break;
-                    }
-                }
-                
-                mainCheckbox.checked = anyChecked;
-                
-                // 상위 체크박스 체크되면 세부 항목 표시
-                if (anyChecked && document.getElementById(`${cat}-details`).style.display !== "block") {
-                    toggleDetails(`${cat}-details`);
-                }
-            });
-        });
-    });
-});
+        @page :first {
+            margin-top: 0mm !important;
+            margin-bottom: 0mm !important;
+        }
+        
+        @page :left {
+            margin-left: 0mm !important;
+        }
+        
+        @page :right {
+            margin-right: 0mm !important;
+        }
+        
+        @media print {
+            html, body {
+                width: 210mm;
+                height: 297mm;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+            
+            .container, button {
+                display: none !important;
+            }
+            
+            .report-container {
+                display: block !important;
+                margin: 0 auto !important;
+                padding: 10mm !important;
+                width: 190mm !important;
+                height: 277mm !important;
+                box-shadow: none !important;
+                overflow: hidden !important;
+            }
+            
+            .report-content {
+                transform: scale(0.95) !important;
+                transform-origin: top center !important;
+            }
+            
+            /* 텍스트 선명도 향상 */
+            * {
+                text-rendering: optimizeLegibility !important;
+                -webkit-font-smoothing: antialiased !important;
+                -moz-osx-font-smoothing: grayscale !important;
+            }
+        }
+    `;
+}
