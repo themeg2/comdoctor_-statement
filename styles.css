@@ -204,9 +204,9 @@ button {
     font-size: 11px;
 }
 
-/* 테이블 셀 패딩 축소 */
+/* 테이블 셀 패딩 최소화 */
 .report-items th, .report-items td {
-    padding: 3px !important;
+    padding: 2px !important;
 }
 
 .report-items th {
@@ -228,14 +228,13 @@ button {
     text-align: center;
 }
 
-/* 빈 공간 높이 조정 */
+/* 빈 공간 제거 */
 .empty-space {
-    flex-grow: 0; /* 자동 확장 방지 */
-    min-height: 5px !important; /* 최소 높이 축소 */
-    max-height: 30px !important; /* 최대 높이 제한 */
-    border-top: 1px dashed #eee;
-    border-bottom: 1px dashed #eee;
-    margin: 5px 0;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 /* 세부 항목 스타일 */
@@ -353,17 +352,20 @@ button {
     margin-bottom: 3px;
 }
 
-/* 도장 및 감사 인사 최적화 */
+/* 감사 인사 부분 최적화 */
 .stamp {
-    margin-top: 3px !important;
-    padding-top: 3px !important;
+    margin-top: 10px !important;
+    padding-top: 5px !important;
+    text-align: center !important;
+    border-top: 1px dashed #ddd !important;
 }
 
 .thanks-message {
-    font-size: 14px;
-    font-weight: bold;
-    color: #333;
-    margin: 5px 0;
+    font-size: 14px !important;
+    font-weight: bold !important;
+    color: #333 !important;
+    margin: 15px 0 10px 0 !important;
+    display: block !important; /* 확실히 표시되도록 */
 }
 
 .official-seal {
@@ -635,19 +637,19 @@ button {
         height: 297mm; /* A4 높이로 고정 */
     }
     
+
+    /* 가운데 정렬 및 감사 인사 표시를 위한 CSS */
+
+    /* 보고서 컨테이너 가운데 정렬 */
     .report-container {
-        display: block !important;
-        margin: 0;
-        padding: 8mm;  /* 여백 조금 줄임 */
-        width: 194mm; /* 210mm - 16mm(padding) */
-        height: 281mm; /* 297mm - 16mm(padding) */
-        box-shadow: none;
-        overflow: hidden; /* 넘치는 내용 숨김 */
+        margin: 0 auto !important;
+        text-align: center !important; /* 내부 콘텐츠 정렬 */
     }
-    
+
+    /* 보고서 내용 가운데 정렬 */
     .report-content {
-        height: 281mm; /* 컨테이너와 동일 */
-        overflow: hidden;
+        margin: 0 auto !important;
+        text-align: left !important; /* 텍스트는 왼쪽 정렬 유지 */
     }
     
     /* 공간 효율성을 위한 크기 조정 */
@@ -669,10 +671,11 @@ button {
         grid-column: span 3;
     }
     
-    /* 서비스 설명 더 컴팩트하게 */
+    /* 서비스 설명 최적화 */
     .service-description {
-        margin: 5px 0 !important;
-        padding: 8px !important;
+        margin: 3px auto !important;
+        padding: 5px !important;
+        width: 100% !important;
     }
     
     .service-title {
@@ -680,18 +683,16 @@ button {
         padding-bottom: 5px !important;
     }
     
-    /* 서비스 포인트 더 컴팩트하게 */
+    /* 서비스 포인트 최적화 */
     .service-point {
-        margin-bottom: 3px !important;
-        padding: 4px 6px !important;
+        margin-bottom: 2px !important;
+        padding: 2px 5px !important;
     }
     
-    /* 테이블 크기 자동 조정 */
+    /* 테이블 가운데 정렬 */
     .table-container {
-        flex: 1;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
+        margin: 0 auto !important;
+        width: 100% !important;
     }
     
     .report-items {
@@ -843,21 +844,18 @@ button {
     text-align: right;
 }
   
-@media print {
-    .service-description {
-        background-color: #f8f9fa !important;
-        -webkit-print-color-adjust: exact;
-        color-adjust: exact;
+/* 텔레그램 전송용 이미지 최적화 */
+@media print, screen {
+    .report-container {
+        transform-origin: center top !important;
     }
     
-    .service-conclusion {
-        background-color: #e8f4f8 !important;
-        -webkit-print-color-adjust: exact;
-        color-adjust: exact;
+    .report-content {
+        transform-origin: center top !important;
     }
-}
-
-.report-container * {
-    -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+    
+    /* 감사 인사 확실히 보이도록 마진 추가 */
+    .footer-info {
+        margin-bottom: 20px !important;
+    }
 }

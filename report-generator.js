@@ -51,7 +51,7 @@ function addTelegramButton(reportContainer) {
     }
 }
 
-// 내역서를 이미지로 변환하여 텔레그램으로 전송 (페이지 잘림 문제 해결)
+// 내역서를 이미지로 변환하여 텔레그램으로 전송 (최종 버전)
 async function sendReportToTelegram() {
     const statusMsg = document.createElement('div');
     try {
@@ -81,7 +81,7 @@ async function sendReportToTelegram() {
         const titleElement = document.querySelector('.report-title');
         const titleText = titleElement ? titleElement.textContent : '';
         
-        // 제목에서 고객 이름 추출 (새로운 형식에 맞게 수정)
+        // 제목에서 고객 이름 추출
         const titleParts = titleText.split('님 점검내역서');
         const customerInfo = titleParts[0] || '';
         const customerName = customerInfo.split(' ').pop() || '고객';
@@ -91,63 +91,16 @@ async function sendReportToTelegram() {
         const reportContainer = document.querySelector('.report-container');
         if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
 
-        // 보고서 내용 최적화 및 크기 조정
-        const reportContent = reportContainer.querySelector('.report-content');
-        if (reportContent) {
-            // 전체 컨텐츠 축소
-            reportContent.style.transform = 'scale(0.85)';
-            reportContent.style.transformOrigin = 'top center';
-            
-            // 불필요한 공간 최소화
-            const emptySpace = reportContent.querySelector('.empty-space');
-            if (emptySpace) {
-                emptySpace.style.minHeight = '0';
-                emptySpace.style.maxHeight = '5px';
-            }
-            
-            // 내용물 간격 최소화
-            const serviceDescription = reportContent.querySelector('.service-description');
-            if (serviceDescription) {
-                serviceDescription.style.margin = '3px 0';
-                serviceDescription.style.padding = '5px';
-            }
-            
-            const servicePoints = reportContent.querySelectorAll('.service-point');
-            servicePoints.forEach(point => {
-                point.style.marginBottom = '2px';
-                point.style.padding = '3px 5px';
-            });
-            
-            // 테이블 최적화
-            const reportItems = reportContent.querySelector('.report-items');
-            if (reportItems) {
-                const tableCells = reportItems.querySelectorAll('td, th');
-                tableCells.forEach(cell => {
-                    cell.style.padding = '2px';
-                });
-            }
-            
-            // 세금 정보 최적화
-            const taxInfo = reportContent.querySelector('.tax-info');
-            if (taxInfo) {
-                taxInfo.style.marginTop = '3px';
-            }
-            
-            // 감사 인사 공간 최적화
-            const stamp = reportContent.querySelector('.stamp');
-            if (stamp) {
-                stamp.style.marginTop = '3px';
-                stamp.style.paddingTop = '3px';
-            }
-        }
+        // 보고서 레이아웃 최적화
+        optimizeReportLayout(reportContainer);
 
-        // 캡처 컨테이너 설정 (전체 페이지 맞춤형)
+        // 캡처 컨테이너 설정 (가운데 정렬)
         const captureContainer = document.createElement('div');
         Object.assign(captureContainer.style, {
             width: '210mm',
             height: '297mm', // A4 고정 높이
-            margin: '0',
-            padding: '10px',
+            margin: '0 auto', // 가운데 정렬을 위한 마진 설정
+            padding: '0',
             background: '#FFFFFF',
             position: 'absolute',
             left: '-9999px',
@@ -155,43 +108,38 @@ async function sendReportToTelegram() {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            webkitFontSmoothing: 'antialiased',
-            textRendering: 'optimizeLegibility'
+            boxSizing: 'border-box'
         });
 
-        // 콘텐츠 복제 및 정리
+        // 콘텐츠 복제 및 스타일 최적화
         const clonedContent = reportContainer.cloneNode(true);
         Object.assign(clonedContent.style, {
             width: '100%',
-            height: '100%',
-            padding: '10px',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'start'
+            height: 'auto',
+            maxHeight: '100%',
+            margin: '0 auto', // 가운데 정렬 추가
+            padding: '10mm',
+            boxSizing: 'border-box',
+            transformOrigin: 'center top',
+            transform: 'scale(0.92)', // 전체 내용이 들어가도록 약간 축소
+            overflow: 'visible'
         });
         
         // 불필요한 버튼 제거
         const buttons = clonedContent.querySelectorAll('button');
         buttons.forEach(button => button.remove());
 
+        // 감사 인사 메시지가 확실히 보이도록 마진 조정
+        const thankYouMsg = clonedContent.querySelector('.thanks-message');
+        if (thankYouMsg) {
+            thankYouMsg.style.margin = '15px 0 10px 0';
+            thankYouMsg.style.fontSize = '14px';
+            thankYouMsg.style.color = '#333';
+            thankYouMsg.style.fontWeight = 'bold';
+        }
+
         document.body.appendChild(captureContainer);
         captureContainer.appendChild(clonedContent);
-        
-        // 내용물이 한 페이지에 맞도록 자동 축소
-        const contentContainer = clonedContent.querySelector('.report-content');
-        if (contentContainer) {
-            // 내용물 높이 측정
-            const contentHeight = contentContainer.scrollHeight;
-            const containerHeight = captureContainer.clientHeight - 20; // 패딩 고려
-            
-            // 내용물이 컨테이너보다 크면 축소
-            if (contentHeight > containerHeight) {
-                const scale = containerHeight / contentHeight * 0.95;
-                contentContainer.style.transform = `scale(${scale})`;
-                contentContainer.style.transformOrigin = 'top center';
-            }
-        }
 
         // 캡처 설정
         const canvas = await html2canvas(captureContainer, {
@@ -207,21 +155,27 @@ async function sendReportToTelegram() {
             width: captureContainer.offsetWidth,
             height: captureContainer.offsetHeight,
             imageTimeout: 15000,
-            removeContainer: false,
             onclone: function(clonedDoc) {
+                // 클론된 문서에 추가 스타일 적용
                 const clonedContainer = clonedDoc.querySelector('.report-container');
                 if (clonedContainer) {
                     clonedContainer.style.display = 'block';
-                    clonedContainer.style.width = '100%';
-                    clonedContainer.style.height = '100%';
-                    clonedContainer.style.margin = '0';
+                    clonedContainer.style.margin = '0 auto'; // 가운데 정렬 강제
+                    clonedContainer.style.boxShadow = 'none';
+                    
+                    // 내용물 가운데 정렬 강화
+                    const reportContent = clonedContainer.querySelector('.report-content');
+                    if (reportContent) {
+                        reportContent.style.margin = '0 auto';
+                        reportContent.style.transformOrigin = 'center top';
+                    }
                 }
             }
         });
 
-        // 이미지 최적화 - 텔레그램 제한에 맞게 조정
-        const telegramMaxWidth = 1280; // 텔레그램 권장 최대 너비
-        const telegramMaxHeight = 1280; // 텔레그램 권장 최대 높이
+        // 텔레그램 이미지 최적화
+        const telegramMaxWidth = 1280;
+        const telegramMaxHeight = 1600; // 텔레그램은 세로로 긴 이미지도 잘 지원
         
         let finalCanvas = canvas;
         const originalWidth = canvas.width;
@@ -243,13 +197,15 @@ async function sendReportToTelegram() {
             const ctx = resizedCanvas.getContext('2d');
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, newWidth, newHeight); // 흰색 배경 추가
             ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
             
             finalCanvas = resizedCanvas;
         }
 
-        // 이미지 데이터 생성 (품질 조정)
-        const imageData = finalCanvas.toDataURL('image/jpeg', 0.85);
+        // 이미지 데이터 생성
+        const imageData = finalCanvas.toDataURL('image/jpeg', 0.92); // 품질 약간 증가
         const blob = await (await fetch(imageData)).blob();
 
         // 텔레그램 전송 준비
@@ -285,6 +241,73 @@ async function sendReportToTelegram() {
         // 임시 요소 정리
         const captureContainer = document.querySelector('[style*="-9999px"]');
         if (captureContainer) captureContainer.remove();
+    }
+}
+
+// 보고서 레이아웃 최적화 함수
+function optimizeReportLayout(reportContainer) {
+    if (!reportContainer) return;
+
+    // 빈 공간 최소화
+    const emptySpace = reportContainer.querySelector('.empty-space');
+    if (emptySpace) {
+        emptySpace.style.minHeight = '0';
+        emptySpace.style.maxHeight = '0'; // 완전히 제거
+        emptySpace.style.margin = '0';
+    }
+
+    // 세부 항목 간격 최소화
+    const servicePoints = reportContainer.querySelectorAll('.service-point');
+    servicePoints.forEach(point => {
+        point.style.marginBottom = '2px';
+        point.style.padding = '2px 5px';
+    });
+
+    // 테이블 셀 패딩 최소화
+    const tableCells = reportContainer.querySelectorAll('.report-items td, .report-items th');
+    tableCells.forEach(cell => {
+        cell.style.padding = '2px';
+    });
+
+    // 세금 정보 테이블 최적화
+    const taxTable = reportContainer.querySelector('.tax-table');
+    if (taxTable) {
+        taxTable.style.marginBottom = '5px';
+        
+        const taxCells = taxTable.querySelectorAll('td, th');
+        taxCells.forEach(cell => {
+            cell.style.padding = '2px 5px';
+        });
+    }
+
+    // 서비스 설명 최적화
+    const serviceDescription = reportContainer.querySelector('.service-description');
+    if (serviceDescription) {
+        serviceDescription.style.margin = '3px 0';
+        serviceDescription.style.padding = '5px';
+    }
+
+    // 서비스 결론 최적화
+    const serviceConclusion = reportContainer.querySelector('.service-conclusion');
+    if (serviceConclusion) {
+        serviceConclusion.style.padding = '5px';
+    }
+
+    // 감사 인사 부분 강조
+    const stamp = reportContainer.querySelector('.stamp');
+    if (stamp) {
+        stamp.style.marginTop = '10px';
+        stamp.style.paddingTop = '5px';
+        stamp.style.textAlign = 'center';
+        stamp.style.borderTop = '1px dashed #ddd';
+    }
+
+    // 보고서 컨텐츠 가운데 정렬
+    const reportContent = reportContainer.querySelector('.report-content');
+    if (reportContent) {
+        // 전체 내용 중앙 정렬
+        reportContent.style.margin = '0 auto';
+        reportContent.style.transformOrigin = 'center top';
     }
 }
 
