@@ -747,4 +747,17 @@ function adjustReportToFitA4() {
         // 원래 내용물의 높이를 유지하면서 변환
         reportContent.style.height = `${contentHeight}px`;
     }
+    
+}// 함수: 세부 항목 가져오기
+function getDetailItems(itemsName) {
+    const items = document.getElementsByName(itemsName);
+    const details = [];
+    
+    items.forEach(item => {
+        if (item.checked) {
+            details.push(item.parentElement.textContent.trim());
+        }
+    });
+    
+    return details;
 }
