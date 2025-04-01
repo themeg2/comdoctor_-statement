@@ -53,199 +53,150 @@ function addTelegramButton(reportContainer) {
 
 // 내역서를 이미지로 변환하여 텔레그램으로 전송 (짤림 현상 해결)
 async function sendReportToTelegram() {
+    const statusMsg = document.createElement('div');
     try {
-        // 상태 메시지 표시
-        const statusMsg = document.createElement('div');
-        statusMsg.style.position = 'fixed';
-        statusMsg.style.top = '50%';
-        statusMsg.style.left = '50%';
-        statusMsg.style.transform = 'translate(-50%, -50%)';
-        statusMsg.style.padding = '15px 25px';
-        statusMsg.style.background = 'rgba(0, 0, 0, 0.8)';
-        statusMsg.style.color = 'white';
-        statusMsg.style.borderRadius = '5px';
-        statusMsg.style.zIndex = '10000';
-        statusMsg.style.fontSize = '16px';
+        // 상태 메시지 스타일 설정
+        Object.assign(statusMsg.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            padding: '15px 25px',
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            borderRadius: '5px',
+            zIndex: '10000',
+            fontSize: '16px'
+        });
         statusMsg.textContent = '이미지 변환 중...';
         document.body.appendChild(statusMsg);
-        
+
         // 필요한 라이브러리 로드
         const [html2canvas, axios] = await Promise.all([
             loadHtml2Canvas(),
             loadAxios()
         ]);
-        
-        // 고객 정보 가져오기 (제목에서 추출)
+
+        // 고객 정보 추출
         const titleElement = document.querySelector('.report-title');
         const titleText = titleElement ? titleElement.textContent : '';
         const customerNameMatch = titleText.match(/(.+)님 점검내역서/);
         const customerName = customerNameMatch ? customerNameMatch[1] : '고객';
         const currentDate = titleText.split(customerName)[0] || new Date().toLocaleDateString();
-        
-        // 보고서 컨테이너 가져오기
+
+        // 보고서 컨테이너 준비
         const reportContainer = document.querySelector('.report-container');
-        if (!reportContainer) {
-            throw new Error('내역서를 찾을 수 없습니다.');
-        }
-        // '서비스를 이용해 주셔서 감사합니다' 메시지까지만 캡처하기 위해
-        // 캡처할 요소를 감사 메시지까지만 포함하도록 새로운 컨테이너 생성
+        if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
+
+        // 캡처 컨테이너 설정
         const captureContainer = document.createElement('div');
-        captureContainer.style.width = '210mm';
-        captureContainer.style.background = '#FFFFFF';
-        captureContainer.style.position = 'absolute';
-        captureContainer.style.left = '-9999px'; // 화면 밖으로 위치시켜 보이지 않게 함
+        Object.assign(captureContainer.style, {
+            width: '210mm',
+            margin: '0',
+            padding: '20px',
+            background: '#FFFFFF',
+            position: 'absolute',
+            left: '-9999px',
+            transform: 'none',
+            webkitFontSmoothing: 'antialiased',
+            textRendering: 'optimizeLegibility'
+        });
 
-        // 원본 컨테이너 내용 복제
-        const thanksMessage = reportContainer.querySelector('.thanks-message');
-        if (!thanksMessage) {
-            throw new Error('감사 메시지를 찾을 수 없습니다.');
-        }
-
-        // 감사 메시지까지만 복제
+        // 콘텐츠 복제 및 정리
         const clonedContent = reportContainer.cloneNode(true);
         const paymentInfo = clonedContent.querySelector('.payment-info');
         if (paymentInfo) {
-            const parentElement = paymentInfo.parentElement;
-            if (parentElement) {
-                // .payment-info 요소 이후의 모든 형제 요소 제거
-                let nextSibling = paymentInfo.nextElementSibling;
-                while (nextSibling) {
-                    const elementToRemove = nextSibling;
-                    nextSibling = nextSibling.nextElementSibling;
-                    parentElement.removeChild(elementToRemove);
-                }
-            }
+            const nextElements = Array.from(paymentInfo.parentElement.children);
+            const startIndex = nextElements.indexOf(paymentInfo) + 1;
+            nextElements.slice(startIndex).forEach(el => el.remove());
         }
 
         document.body.appendChild(captureContainer);
-        captureContainer.appendChild(clonedContent);   
+        captureContainer.appendChild(clonedContent);
 
-        // 원래 스타일 저장
-        const originalStyle = {
-            transform: reportContainer.style.transform,
-            width: reportContainer.style.width,
-            height: reportContainer.style.height,
-            overflow: reportContainer.style.overflow
-        };
-        
-        // 캡처를 위해 임시로 스타일 조정
-        reportContainer.style.transform = 'none';
-        reportContainer.style.width = '210mm';
-        reportContainer.style.height = 'auto';
-        reportContainer.style.overflow = 'visible';
-        
-        // 내역서 내부 콘텐츠도 조정
-        const reportContent = reportContainer.querySelector('.report-content');
-        const contentOriginalStyle = {
-            transform: reportContent ? reportContent.style.transform : null,
-            height: reportContent ? reportContent.style.height : null
-        };
-        
-        if (reportContent) {
-            reportContent.style.transform = 'none';
-            reportContent.style.height = 'auto';
-        }
-        
-        // 상태 메시지 업데이트
-        statusMsg.textContent = '내역서 이미지 생성 중...';
-        
-        // 내역서를 이미지로 변환 (최적화된 설정)
+        // 캡처 설정
         const canvas = await html2canvas(captureContainer, {
-
-            scale: 5, // 해상도 높임
+            scale: 4,
             useCORS: true,
             allowTaint: true,
             logging: false,
             backgroundColor: '#FFFFFF',
-            scrollY: -window.scrollY, // 스크롤 위치 보정
-            windowWidth: document.documentElement.offsetWidth,
-            windowHeight: document.documentElement.offsetHeight,
-            // 이미지 품질을 위한 추가 설정
-            imageTimeout: 0, // 이미지 로딩 타임아웃 없음
-            removeContainer: false
+            scrollY: -window.scrollY,
+            windowWidth: captureContainer.offsetWidth,
+            windowHeight: captureContainer.offsetHeight,
+            imageTimeout: 15000,
+            removeContainer: false,
+            letterRendering: true,
+            foreignObjectRendering: true,
+            onclone: function(clonedDoc) {
+                const clonedContainer = clonedDoc.querySelector('.report-container');
+                if (clonedContainer) {
+                    Object.assign(clonedContainer.style, {
+                        width: '210mm',
+                        margin: '0',
+                        padding: '20px'
+                    });
+                }
+            }
         });
-        
-        // 원래 스타일 복원
-        reportContainer.style.transform = originalStyle.transform;
-        reportContainer.style.width = originalStyle.width;
-        reportContainer.style.height = originalStyle.height;
-        reportContainer.style.overflow = originalStyle.overflow;
-        
-        if (reportContent) {
-            reportContent.style.transform = contentOriginalStyle.transform;
-            reportContent.style.height = contentOriginalStyle.height;
-        }
-        
-        // 임시 캡처 컨테이너 제거
-        if (captureContainer && captureContainer.parentNode) {
-            document.body.removeChild(captureContainer);
+
+        // 이미지 크기 최적화
+        const maxWidth = 2400;
+        const maxHeight = 3400;
+        let finalCanvas = canvas;
+
+        if (canvas.width > maxWidth) {
+            const ratio = maxWidth / canvas.width;
+            const newWidth = maxWidth;
+            const newHeight = Math.min(canvas.height * ratio, maxHeight);
+            
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = newWidth;
+            resizedCanvas.height = newHeight;
+            const ctx = resizedCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+            finalCanvas = resizedCanvas;
         }
 
-        // 캔버스를 Base64 인코딩된 이미지로 변환
-        const imageData = canvas.toDataURL('image/jpeg', 0.9);
-        
-        // base64 데이터를 Blob으로 변환
-        const byteString = atob(imageData.split(',')[1]);
-        const mimeType = 'image/jpeg';
-        const ab = new ArrayBuffer(byteString.length);
-        const ia = new Uint8Array(ab);
-        for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-        }
-        const blob = new Blob([ab], { type: mimeType });
-        
-        // 상태 메시지 업데이트
+        // 이미지 데이터 생성
+        const imageData = finalCanvas.toDataURL('image/jpeg', 1.0);
+        const blob = await (await fetch(imageData)).blob();
+
+        // 텔레그램 전송 준비
         statusMsg.textContent = '텔레그램으로 전송 중...';
-        
-        // 텔레그램 메시지 구성
-        const telegramMessage = `[${currentDate}] ${customerName}님의 컴퓨터 점검 내역서`;
-        
-        // FormData 객체 생성
         const formData = new FormData();
-        formData.append('chat_id', '5934421096'); // 텔레그램 채팅 ID
-        formData.append('caption', telegramMessage); // 이미지 캡션
-        formData.append('photo', blob, 'report.jpg'); // 이미지 파일
-        
-        // 텔레그램 API로 이미지 전송
+        formData.append('chat_id', '5934421096');
+        formData.append('caption', `[${currentDate}] ${customerName}님의 컴퓨터 점검 내역서`);
+        formData.append('photo', blob, 'report.jpg');
+
+        // 텔레그램 전송
         const response = await axios({
             method: 'post',
             url: 'https://api.telegram.org/bot7274631975:AAEsb1gtaMhMpUEHYaYi7wwdidLyVGJ0cUY/sendPhoto',
             data: formData,
             headers: { 'Content-Type': 'multipart/form-data' }
         });
-        
-        // 응답 확인
-        if (response.data && response.data.ok) {
+
+        // 결과 처리
+        if (response.data?.ok) {
             statusMsg.textContent = '전송 완료!';
             statusMsg.style.background = 'rgba(46, 204, 113, 0.8)';
-            setTimeout(() => {
-                document.body.removeChild(statusMsg);
-            }, 2000);
+            setTimeout(() => statusMsg.remove(), 2000);
         } else {
             throw new Error('텔레그램 API 응답 오류: ' + JSON.stringify(response.data));
         }
+
     } catch (error) {
         console.error('텔레그램 전송 오류:', error);
-        
-        // 에러 메시지 표시
-        const errorMsg = document.querySelector('#telegram-status-msg') || document.createElement('div');
-        errorMsg.id = 'telegram-status-msg';
-        errorMsg.style.position = 'fixed';
-        errorMsg.style.top = '50%';
-        errorMsg.style.left = '50%';
-        errorMsg.style.transform = 'translate(-50%, -50%)';
-        errorMsg.style.padding = '15px 25px';
-        errorMsg.style.background = 'rgba(231, 76, 60, 0.8)';
-        errorMsg.style.color = 'white';
-        errorMsg.style.borderRadius = '5px';
-        errorMsg.style.zIndex = '10000';
-        errorMsg.style.fontSize = '16px';
-        errorMsg.textContent = '전송 실패: ' + (error.message || '알 수 없는 오류');
-        
-        document.body.appendChild(errorMsg);
-        setTimeout(() => {
-            document.body.removeChild(errorMsg);
-        }, 3000);
+        statusMsg.textContent = '전송 실패: ' + (error.message || '알 수 없는 오류');
+        statusMsg.style.background = 'rgba(231, 76, 60, 0.8)';
+        setTimeout(() => statusMsg.remove(), 3000);
+    } finally {
+        // 임시 요소 정리
+        const captureContainer = document.querySelector('[style*="-9999px"]');
+        if (captureContainer) captureContainer.remove();
     }
 }
 
@@ -289,13 +240,12 @@ function generateReport() {
     const reportContent = document.createElement('div');
     reportContent.className = 'report-content';
     
-    // 제목 (점검일과 고객명 포함)
+    // 제목 (점검일과 고객명을 한 줄에 표시)
     const reportTitle = document.createElement('div');
     reportTitle.className = 'report-title';
-    const formattedTitleDate = dateInput ? formatDate(dateInput).replace('년 ', '년\n').replace('월 ', '월\n') : formatDate(new Date().toISOString().slice(0, 10)).replace('년 ', '년\n').replace('월 ', '월\n');
-    reportTitle.innerHTML = `${formattedTitleDate}<br>${customerName}님 점검내역서`;
+    // 날짜와 이름이 한 줄에 표시되도록 수정
+    reportTitle.innerHTML = `${formattedDate} ${customerName}님 점검내역서`;
     reportContent.appendChild(reportTitle);
-    
     
     // 업체 정보 테이블 개선
     const businessTableHTML = `
@@ -479,15 +429,18 @@ function generateReport() {
     reportItemsTable.appendChild(tableBody);
     tableContainer.appendChild(reportItemsTable);
 
-    // 빈 공간 추가 - 자동 조정 함수 사용
-    adjustEmptySpace(itemCount);
+    // 빈 공간 추가 - 기존 함수 사용하되 높이 감소
+    const emptySpace = document.createElement('div');
+    emptySpace.className = 'empty-space';
+    emptySpace.style.minHeight = Math.max(5, 60 - (itemCount * 10)) + 'px'; // 빈 공간 높이 감소
+    tableContainer.appendChild(emptySpace);
     
     // 세금 정보 추가
     const supplyAmount = totalAmount;
     const taxAmount = Math.round(totalAmount * 0.1);
     const totalWithTax = supplyAmount + taxAmount;
     
-    // 세금 정보 및 감사인사 부분 업데이트
+    // 세금 정보 및 감사인사 부분 업데이트 - 더 컴팩트하게
     const footerInfoHTML = `
         <div class="footer-info">
             <div class="tax-info">
@@ -511,7 +464,7 @@ function generateReport() {
                 
                 <div class="tax-note">
                     <p>※ 부가가치세는 부가가치세법에 따라 재화 및 용역의 공급에 부과되는 세금으로, 
-                    최종 소비자가 부담하는 간접세입니다.<br>※ 사업자는 이를 대신 수납하여 국가에 납부합니다.</p>
+                    최종 소비자가 부담하는 간접세입니다. ※ 사업자는 이를 대신 수납하여 국가에 납부합니다.</p>
                 </div>
             </div>
             
@@ -553,4 +506,186 @@ function generateReport() {
     
     // A4 페이지에 맞게 자동 조정
     setTimeout(adjustReportToFitA4, 100);
+}
+
+// 내역서를 이미지로 변환하여 텔레그램으로 전송 (짤림 현상 해결)
+async function sendReportToTelegram() {
+    const statusMsg = document.createElement('div');
+    try {
+        // 상태 메시지 스타일 설정
+        Object.assign(statusMsg.style, {
+            position: 'fixed',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            padding: '15px 25px',
+            background: 'rgba(0, 0, 0, 0.8)',
+            color: 'white',
+            borderRadius: '5px',
+            zIndex: '10000',
+            fontSize: '16px'
+        });
+        statusMsg.textContent = '이미지 변환 중...';
+        document.body.appendChild(statusMsg);
+
+        // 필요한 라이브러리 로드
+        const [html2canvas, axios] = await Promise.all([
+            loadHtml2Canvas(),
+            loadAxios()
+        ]);
+
+        // 고객 정보 추출
+        const titleElement = document.querySelector('.report-title');
+        const titleText = titleElement ? titleElement.textContent : '';
+        
+        // 제목에서 고객 이름 추출 (새로운 형식에 맞게 수정)
+        const titleParts = titleText.split('님 점검내역서');
+        const customerInfo = titleParts[0] || '';
+        const customerName = customerInfo.split(' ').pop() || '고객';
+        const currentDate = customerInfo.replace(customerName, '').trim() || new Date().toLocaleDateString();
+
+        // 보고서 컨테이너 준비
+        const reportContainer = document.querySelector('.report-container');
+        if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
+
+        // 리포트 콘텐츠 스타일 최적화
+        const reportContent = reportContainer.querySelector('.report-content');
+        if (reportContent) {
+            // 내부 요소 간격 최적화
+            const serviceDescription = reportContent.querySelector('.service-description');
+            if (serviceDescription) {
+                serviceDescription.style.margin = '5px 0';
+                serviceDescription.style.padding = '10px';
+            }
+
+            // 서비스 포인트 간격 줄이기
+            const servicePoints = reportContent.querySelectorAll('.service-point');
+            servicePoints.forEach(point => {
+                point.style.marginBottom = '4px';
+                point.style.padding = '5px 8px';
+            });
+
+            // 점검 내역 테이블 최적화
+            const reportItems = reportContent.querySelector('.report-items');
+            if (reportItems) {
+                reportItems.style.marginBottom = '5px';
+            }
+        }
+
+        // 캡처 컨테이너 설정
+        const captureContainer = document.createElement('div');
+        Object.assign(captureContainer.style, {
+            width: '210mm',
+            margin: '0',
+            padding: '20px',
+            background: '#FFFFFF',
+            position: 'absolute',
+            left: '-9999px',
+            transform: 'none',
+            webkitFontSmoothing: 'antialiased',
+            textRendering: 'optimizeLegibility'
+        });
+
+        // 콘텐츠 복제 및 정리
+        const clonedContent = reportContainer.cloneNode(true);
+        
+        // 전체 콘텐츠가 캡처되도록 확인
+        const footerInfo = clonedContent.querySelector('.footer-info');
+        if (footerInfo) {
+            footerInfo.style.marginTop = '5px';
+        }
+        
+        const stamp = clonedContent.querySelector('.stamp');
+        if (stamp) {
+            stamp.style.marginTop = '5px';
+            stamp.style.paddingTop = '5px';
+        }
+
+        document.body.appendChild(captureContainer);
+        captureContainer.appendChild(clonedContent);
+
+        // 캡처 설정
+        const canvas = await html2canvas(captureContainer, {
+            scale: 3, // 3으로 변경하여 전체적인 품질과 파일 크기 균형 조정
+            useCORS: true,
+            allowTaint: true,
+            logging: false,
+            backgroundColor: '#FFFFFF',
+            scrollY: -window.scrollY,
+            windowWidth: captureContainer.offsetWidth,
+            windowHeight: captureContainer.offsetHeight,
+            imageTimeout: 15000,
+            removeContainer: false,
+            letterRendering: true,
+            foreignObjectRendering: true,
+            onclone: function(clonedDoc) {
+                const clonedContainer = clonedDoc.querySelector('.report-container');
+                if (clonedContainer) {
+                    Object.assign(clonedContainer.style, {
+                        width: '210mm',
+                        margin: '0',
+                        padding: '20px'
+                    });
+                }
+            }
+        });
+
+        // 이미지 크기 최적화
+        const maxWidth = 2000; // 너비 축소
+        const maxHeight = 2800; // 높이 축소
+        let finalCanvas = canvas;
+
+        if (canvas.width > maxWidth) {
+            const ratio = maxWidth / canvas.width;
+            const newWidth = maxWidth;
+            const newHeight = Math.min(canvas.height * ratio, maxHeight);
+            
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = newWidth;
+            resizedCanvas.height = newHeight;
+            const ctx = resizedCanvas.getContext('2d');
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+            finalCanvas = resizedCanvas;
+        }
+
+        // 이미지 데이터 생성 (품질 0.9로 설정하여 최적화)
+        const imageData = finalCanvas.toDataURL('image/jpeg', 0.9);
+        const blob = await (await fetch(imageData)).blob();
+
+        // 텔레그램 전송 준비
+        statusMsg.textContent = '텔레그램으로 전송 중...';
+        const formData = new FormData();
+        formData.append('chat_id', '5934421096');
+        formData.append('caption', `[${currentDate}] ${customerName}님의 컴퓨터 점검 내역서`);
+        formData.append('photo', blob, 'report.jpg');
+
+        // 텔레그램 전송
+        const response = await axios({
+            method: 'post',
+            url: 'https://api.telegram.org/bot7274631975:AAEsb1gtaMhMpUEHYaYi7wwdidLyVGJ0cUY/sendPhoto',
+            data: formData,
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        // 결과 처리
+        if (response.data?.ok) {
+            statusMsg.textContent = '전송 완료!';
+            statusMsg.style.background = 'rgba(46, 204, 113, 0.8)';
+            setTimeout(() => statusMsg.remove(), 2000);
+        } else {
+            throw new Error('텔레그램 API 응답 오류: ' + JSON.stringify(response.data));
+        }
+
+    } catch (error) {
+        console.error('텔레그램 전송 오류:', error);
+        statusMsg.textContent = '전송 실패: ' + (error.message || '알 수 없는 오류');
+        statusMsg.style.background = 'rgba(231, 76, 60, 0.8)';
+        setTimeout(() => statusMsg.remove(), 3000);
+    } finally {
+        // 임시 요소 정리
+        const captureContainer = document.querySelector('[style*="-9999px"]');
+        if (captureContainer) captureContainer.remove();
+    }
 }

@@ -148,13 +148,16 @@ button {
     flex-direction: column;
 }
 
+/* 보고서 제목 스타일 - 한 줄로 표시되게 수정 */
 .report-title {
-    font-size: 22px;
+    font-size: 20px;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;
-    letter-spacing: 10px;
-    padding-left: 10px;
+    letter-spacing: 3px; /* 자간 줄임 */
+    white-space: nowrap; /* 한 줄로 표시 */
+    overflow: hidden;
+    text-overflow: ellipsis; /* 만약 너무 길면 생략 */
 }
 
 .customer-info {
@@ -205,7 +208,7 @@ button {
 
 .report-items th, .report-items td {
     border: 1px solid #ddd;
-    padding: 5px;
+    padding: 4px !important;
     vertical-align: middle;
 }
 
@@ -228,12 +231,14 @@ button {
     text-align: center;
 }
 
+/* 빈 공간 높이 조정 */
 .empty-space {
-    flex-grow: 1;
-    min-height: 20px;
+    flex-grow: 0; /* 자동 확장 방지 */
+    min-height: 5px !important; /* 최소 높이 축소 */
+    max-height: 30px !important; /* 최대 높이 제한 */
     border-top: 1px dashed #eee;
     border-bottom: 1px dashed #eee;
-    margin: 10px 0;
+    margin: 5px 0;
 }
 
 /* 세부 항목 스타일 */
@@ -303,9 +308,13 @@ button {
     line-height: 1.3;
 }
 
+.tax-note p {
+    margin: 0;
+}
+
 /* 결제 정보 스타일 */
 .payment-info {
-    margin-top: 15px;
+    margin-top: 5px !important;
     border-top: 1px solid #eee;
     padding-top: 10px;
     display: flex;
@@ -352,10 +361,10 @@ button {
 /* 도장 및 감사 인사 스타일 */
 .stamp {
     text-align: center;
-    margin-top: 10px;
+    margin-top: 5px !important;
     position: relative;
     border-top: 1px dashed #ddd;
-    padding-top: 15px;
+    padding-top: 5px !important;
 }
 
 .thanks-message {
@@ -526,7 +535,7 @@ button {
 
 /* 푸터 정보 스타일 */
 .footer-info {
-    margin-top: auto;
+    margin-top: 5px !important;
 }
 
 /* 모달 창 스타일 */
@@ -644,13 +653,13 @@ button {
     
     /* 공간 효율성을 위한 크기 조정 */
     .report-title {
-        margin-bottom: 10px;
-        font-size: 20px;
-        letter-spacing: 8px;
+        font-size: 18px !important;
+        margin-bottom: 5px !important;
+        letter-spacing: 2px !important;
     }
     
     .customer-info, .business-table-container {
-        margin-bottom: 10px;
+        margin-bottom: 5px !important;
     }
     
     .business-info-grid {
@@ -663,18 +672,18 @@ button {
     
     /* 서비스 설명 섹션 크기 조정 */
     .service-description {
-        margin: 5px 0;
-        padding: 8px;
+        margin: 3px 0 !important;
+        padding: 8px !important;
     }
     
     .service-title {
-        margin-bottom: 5px;
-        padding-bottom: 5px;
+        margin-bottom: 5px !important;
+        padding-bottom: 5px !important;
     }
     
     .service-point {
-        margin-bottom: 3px;
-        padding: 4px 6px;
+        margin-bottom: 3px !important;
+        padding: 4px 6px !important;
     }
     
     /* 테이블 크기 자동 조정 */
@@ -691,17 +700,17 @@ button {
     
     /* 빈 공간 자동 조정 */
     .empty-space {
-        flex: 1;
-        min-height: auto !important;
+        min-height: 0 !important;
+        max-height: 15px !important;
     }
     
     /* 하단 정보 컴팩트하게 */
     .footer-info {
-        margin-top: 10px;
+        margin-top: 5px !important;
     }
     
     .payment-info {
-        margin-top: 8px;
+        margin-top: 5px !important;
     }
     
     .account-info, .receipt-info {
@@ -709,8 +718,8 @@ button {
     }
     
     .stamp {
-        margin-top: 10px;
-        padding-top: 10px;
+        margin-top: 5px !important;
+        padding-top: 5px !important;
     }
     
     /* 폰트 크기 자동 축소를 위한 클래스 */
@@ -718,7 +727,7 @@ button {
         transform-origin: top left;
     }
     
-    .simple-service-section {
+    .service-description {
         background-color: #f9f9fa !important;
         -webkit-print-color-adjust: exact;
         color-adjust: exact;
@@ -730,13 +739,20 @@ button {
         -webkit-print-color-adjust: exact;
         color-adjust: exact;
     }
+    
+    /* 세금 정보 최적화 */
+    .tax-note p {
+        font-size: 8px !important;
+        line-height: 1.2 !important;
+        margin: 0 !important;
+    }
 }
 
 .service-description {
     font-family: 'Malgun Gothic', sans-serif;
     max-width: 800px;
-    margin: 0 auto;
-    padding: 15px;
+    margin: 5px 0 !important;
+    padding: 10px !important;
     background-color: #f8f9fa;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.05);
@@ -746,10 +762,10 @@ button {
   
 .service-title {
     color: #2c3e50;
-    font-size: 14px;
+    font-size: 13px !important;
     font-weight: 700;
-    margin: 0 0 10px 0;
-    padding-bottom: 8px;
+    margin: 0 0 8px 0 !important;
+    padding-bottom: 5px !important;
     border-bottom: 1px solid #e9ecef;
     text-align: center;
 }
@@ -767,16 +783,16 @@ button {
 }
   
 .service-points {
-    margin: 0 0 10px 0;
+    margin: 0 0 5px 0 !important;
     padding: 0;
     list-style: none;
 }
   
 .service-point {
     display: flex;
-    margin-bottom: 8px;
+    margin-bottom: 4px !important;
     background-color: white;
-    padding: 8px 10px;
+    padding: 5px 8px !important;
     border-radius: 4px;
 }
   
@@ -807,7 +823,7 @@ button {
   
 .service-conclusion {
     background-color: #e8f4f8;
-    padding: 10px;
+    padding: 8px !important;
     border-radius: 4px;
     border-left: 3px solid #3498db;
 }
@@ -841,3 +857,7 @@ button {
     }
 }
 
+.report-container * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
