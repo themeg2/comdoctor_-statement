@@ -51,7 +51,7 @@ function addTelegramButton(reportContainer) {
     }
 }
 
-// 내역서를 이미지로 변환하여 텔레그램으로 전송 (최종 버전)
+// 내역서를 이미지로 변환하여 텔레그램으로 전송 (텍스트 또렷하게 개선)
 async function sendReportToTelegram() {
     const statusMsg = document.createElement('div');
     try {
@@ -91,6 +91,9 @@ async function sendReportToTelegram() {
         const reportContainer = document.querySelector('.report-container');
         if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
 
+        // 텍스트 선명도 향상을 위한 폰트 최적화
+        optimizeTextRendering(reportContainer);
+
         // 보고서 레이아웃 최적화
         optimizeReportLayout(reportContainer);
 
@@ -121,7 +124,7 @@ async function sendReportToTelegram() {
             padding: '10mm',
             boxSizing: 'border-box',
             transformOrigin: 'center top',
-            transform: 'scale(0.92)', // 전체 내용이 들어가도록 약간 축소
+            transform: 'scale(0.95)', // 약간 축소 (너무 작으면 텍스트가 흐려짐)
             overflow: 'visible'
         });
         
@@ -136,14 +139,15 @@ async function sendReportToTelegram() {
             thankYouMsg.style.fontSize = '14px';
             thankYouMsg.style.color = '#333';
             thankYouMsg.style.fontWeight = 'bold';
+            thankYouMsg.style.textShadow = '0 0 0 #000'; // 텍스트 선명도 향상
         }
 
         document.body.appendChild(captureContainer);
         captureContainer.appendChild(clonedContent);
 
-        // 캡처 설정
+        // 캡처 설정 - 선명도 향상을 위해 스케일 증가
         const canvas = await html2canvas(captureContainer, {
-            scale: 2, // 해상도 조정
+            scale: 3, // 해상도 증가 (2에서 3으로 변경)
             useCORS: true,
             allowTaint: true,
             logging: false,
@@ -154,7 +158,8 @@ async function sendReportToTelegram() {
             y: 0,
             width: captureContainer.offsetWidth,
             height: captureContainer.offsetHeight,
-            imageTimeout: 15000,
+            imageTimeout: 30000, // 타임아웃 증가
+            letterRendering: true, // 글자 렌더링 품질 향상
             onclone: function(clonedDoc) {
                 // 클론된 문서에 추가 스타일 적용
                 const clonedContainer = clonedDoc.querySelector('.report-container');
@@ -169,6 +174,9 @@ async function sendReportToTelegram() {
                         reportContent.style.margin = '0 auto';
                         reportContent.style.transformOrigin = 'center top';
                     }
+                    
+                    // 텍스트 선명도 향상을 위한 스타일 적용
+                    enhanceTextClarity(clonedDoc);
                 }
             }
         });
@@ -181,7 +189,7 @@ async function sendReportToTelegram() {
         const originalWidth = canvas.width;
         const originalHeight = canvas.height;
         
-        // 텔레그램 이미지 최적화
+        // 텔레그램 이미지 최적화 - 선명도 유지를 위해 크기 조정 방식 변경
         if (originalWidth > telegramMaxWidth || originalHeight > telegramMaxHeight) {
             const widthRatio = telegramMaxWidth / originalWidth;
             const heightRatio = telegramMaxHeight / originalHeight;
@@ -195,17 +203,19 @@ async function sendReportToTelegram() {
             resizedCanvas.height = newHeight;
             
             const ctx = resizedCanvas.getContext('2d');
+            // 이미지 렌더링 품질 최대화
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             ctx.fillStyle = '#FFFFFF';
             ctx.fillRect(0, 0, newWidth, newHeight); // 흰색 배경 추가
+            // 안티앨리어싱 적용하여 이미지 그리기
             ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
             
             finalCanvas = resizedCanvas;
         }
 
-        // 이미지 데이터 생성
-        const imageData = finalCanvas.toDataURL('image/jpeg', 0.92); // 품질 약간 증가
+        // 이미지 데이터 생성 - 품질 최대화
+        const imageData = finalCanvas.toDataURL('image/jpeg', 0.98); // 품질 최대화
         const blob = await (await fetch(imageData)).blob();
 
         // 텔레그램 전송 준비
@@ -242,6 +252,91 @@ async function sendReportToTelegram() {
         const captureContainer = document.querySelector('[style*="-9999px"]');
         if (captureContainer) captureContainer.remove();
     }
+}
+
+// 텍스트 렌더링 최적화 함수
+function optimizeTextRendering(container) {
+    if (!container) return;
+    
+    // 모든 텍스트 요소에 최적화 적용
+    const textElements = container.querySelectorAll('*');
+    textElements.forEach(el => {
+        // 텍스트 선명도 향상
+        el.style.textRendering = 'optimizeLegibility';
+        el.style.webkitFontSmoothing = 'antialiased';
+        el.style.mozOsxFontSmoothing = 'grayscale';
+        
+        // 폰트 두께 약간 증가하여 선명도 향상
+        if (window.getComputedStyle(el).fontWeight === 'normal' || 
+            window.getComputedStyle(el).fontWeight === '400') {
+            el.style.fontWeight = '500';
+        }
+        
+        // 중요 요소 강조
+        if (el.tagName === 'TH' || el.tagName === 'TD') {
+            el.style.textShadow = '0 0 0 #000'; // 글자 선명도 향상
+        }
+    });
+    
+    // 테이블 셀 내용 강조
+    const tableCells = container.querySelectorAll('.report-items td, .report-items th');
+    tableCells.forEach(cell => {
+        cell.style.fontWeight = parseInt(window.getComputedStyle(cell).fontWeight) + 100;
+    });
+    
+    // 제목 강조
+    const reportTitle = container.querySelector('.report-title');
+    if (reportTitle) {
+        reportTitle.style.textShadow = '0 0 0 #000';
+        reportTitle.style.fontWeight = '700';
+        reportTitle.style.letterSpacing = '1px';
+    }
+}
+
+// 클론된 문서에 텍스트 선명도 향상 스타일 적용
+function enhanceTextClarity(clonedDoc) {
+    // 글꼴 선명도 향상을 위한 스타일 추가
+    const styleElement = clonedDoc.createElement('style');
+    styleElement.textContent = `
+        * {
+            text-rendering: optimizeLegibility !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+        }
+        
+        td, th, p, div, span {
+            text-shadow: 0 0 0 #000;
+        }
+        
+        .report-title {
+            font-weight: 700 !important;
+            letter-spacing: 1px !important;
+            text-shadow: 0 0 0 #000 !important;
+        }
+        
+        .report-items td, .report-items th {
+            font-weight: 500 !important;
+        }
+        
+        .thanks-message {
+            font-weight: 700 !important;
+            font-size: 16px !important;
+            text-shadow: 0 0 0 #000 !important;
+        }
+    `;
+    clonedDoc.head.appendChild(styleElement);
+    
+    // 특정 요소에 추가 강조
+    const reportItems = clonedDoc.querySelectorAll('.report-items td, .report-items th');
+    reportItems.forEach(item => {
+        item.style.fontWeight = '500';
+    });
+    
+    // 금액 강조
+    const amounts = clonedDoc.querySelectorAll('.amount, .total-amount');
+    amounts.forEach(amount => {
+        amount.style.fontWeight = '600';
+    });
 }
 
 // 보고서 레이아웃 최적화 함수
@@ -310,7 +405,6 @@ function optimizeReportLayout(reportContainer) {
         reportContent.style.transformOrigin = 'center top';
     }
 }
-
 /// 점검 내역서 생성 함수
 function generateReport() {
     // 필요한 모든 데이터 수집
