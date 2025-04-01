@@ -150,7 +150,7 @@ function adjustEmptySpace(itemCount) {
     emptySpace.style.minHeight = height;
 }
 
-// scripts.js 파일에 추가할 코드
+// scripts.js 파일에 추가 또는 수정할 코드
 function saveToPrint() {
     // 내역서 요소 가져오기
     const reportContainer = document.querySelector('.report-container');
@@ -167,7 +167,7 @@ function saveToPrint() {
     });
     
     // 인쇄 전에 최적화
-    compressReportForPrinting();
+    optimizeForA4Print();
     
     // 인쇄 다이얼로그 실행
     setTimeout(() => {
@@ -180,13 +180,13 @@ function saveToPrint() {
             });
             
             // 인쇄 후 원래 상태로 복원
-            restoreReportAfterPrinting();
+            restoreAfterPrinting();
         }, 1000);
     }, 300);
 }
 
-// 인쇄를 위해 내역서 압축
-function compressReportForPrinting() {
+// A4 인쇄 최적화
+function optimizeForA4Print() {
     // 추가 스타일을 적용할 스타일 요소 생성
     let printStyle = document.getElementById('print-style');
     
@@ -196,11 +196,11 @@ function compressReportForPrinting() {
         document.head.appendChild(printStyle);
     }
     
-    // 인쇄 스타일 추가
+    // A4 페이지에 맞는 여유 있는 스타일 추가
     printStyle.textContent = `
         @page {
             size: A4 portrait;
-            margin: 0;
+            margin: 15mm !important; /* 여백 추가 */
             marks: none;
         }
         
@@ -211,6 +211,7 @@ function compressReportForPrinting() {
                 margin: 0 !important;
                 padding: 0 !important;
                 overflow: visible !important;
+                background-color: #fff;
             }
             
             .container, button, .modal-close {
@@ -223,6 +224,9 @@ function compressReportForPrinting() {
                 overflow: visible !important;
                 height: auto !important;
                 display: block !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
             }
             
             .modal-container {
@@ -245,8 +249,8 @@ function compressReportForPrinting() {
             .report-container {
                 display: block !important;
                 margin: 0 auto !important;
-                padding: 5mm !important;
-                width: 200mm !important;
+                padding: 0 !important;
+                width: 180mm !important;  /* A4 폭에서 여백 고려 */
                 height: auto !important;
                 box-shadow: none !important;
                 overflow: visible !important;
@@ -255,212 +259,114 @@ function compressReportForPrinting() {
             }
             
             .report-content {
-                transform: scale(0.85) !important;
+                transform: scale(0.9) !important; /* 약간 더 여유롭게 크기 조정 */
                 transform-origin: top center !important;
                 height: auto !important;
                 overflow: visible !important;
-                padding: 0 !important;
                 margin: 0 auto !important;
+            }
+            
+            /* 섹션 간 여백 추가 */
+            .business-table-container {
+                margin-bottom: 10px !important;
+            }
+            
+            .service-description {
+                margin: 10px 0 !important;
+            }
+            
+            /* 테이블 간격 조정 */
+            .report-items td, .report-items th {
+                padding: 3px 5px !important;
             }
             
             /* 빈 공간 제거 */
             .empty-space {
                 display: none !important;
                 height: 0 !important;
-                min-height: 0 !important;
-                max-height: 0 !important;
             }
             
-            /* 폰트 크기 최적화 */
-            .report-title {
-                font-size: 16px !important;
-                margin-bottom: 5px !important;
-                letter-spacing: 0 !important;
+            /* 하단 여백 추가 */
+            .footer-info {
+                margin-top: 10px !important;
+                margin-bottom: 15px !important;
             }
             
-            .business-header {
-                padding: 8px !important;
-            }
-            
-            .business-name {
-                font-size: 15px !important;
-            }
-            
-            .representative {
-                font-size: 10px !important;
-                margin-right: 30px !important;
-            }
-            
-            .official-seal {
-                width: 35px !important;
-                height: 35px !important;
-            }
-            
-            .logo-placeholder {
-                width: 30px !important;
-                height: 30px !important;
-                font-size: 18px !important;
-                margin-right: 8px !important;
-            }
-            
-            .service-title {
-                font-size: 13px !important;
-                margin-bottom: 4px !important;
-            }
-            
-            .service-intro, .conclusion-content {
-                font-size: 10px !important;
-                line-height: 1.2 !important;
-            }
-            
-            .service-point {
-                margin-bottom: 2px !important;
-                padding: 2px 4px !important;
-            }
-            
-            .point-title, .point-description {
-                font-size: 10px !important;
-                line-height: 1.2 !important;
-            }
-            
-            .business-info-item {
-                padding: 5px !important;
-            }
-            
-            .info-label, .info-value {
-                font-size: 10px !important;
-            }
-            
-            /* 테이블 셀 패딩 최소화 */
-            .report-items th, .report-items td {
-                padding: 2px !important;
-                font-size: 10px !important;
-            }
-            
-            .detail-item {
-                font-size: 9px !important;
-                line-height: 1.1 !important;
-                margin-bottom: 1px !important;
-            }
-            
-            /* 세금 정보 테이블 컴팩트하게 */
-            .tax-table td, .tax-table th {
-                padding: 2px !important;
-                font-size: 10px !important;
-            }
-            
-            .tax-note {
-                font-size: 8px !important;
-                padding: 3px !important;
-                margin-top: 2px !important;
-            }
-            
-            .account-info, .receipt-info {
-                padding: 5px !important;
-            }
-            
-            .info-title {
-                font-size: 10px !important;
-                margin: 0 0 4px 0 !important;
-                padding-bottom: 2px !important;
-            }
-            
-            .account-number {
-                font-size: 10px !important;
-                margin: 2px 0 !important;
-            }
-            
-            .thanks-message {
-                font-size: 12px !important;
-                margin: 8px 0 5px 0 !important;
-            }
-            
-            /* 각 섹션이 분리되지 않도록 설정 */
-            .service-description, .report-items, .tax-info, .payment-info, .business-table-container {
-                page-break-inside: avoid !important;
+            /* 청구금액 강조 */
+            .total-amount {
+                font-weight: bold !important;
+                color: #e74c3c !important;
             }
         }
     `;
     
-    // 내역서 요소 최적화
+    // 원래 상태 저장 및 최적화 설정
     const reportContainer = document.querySelector('.report-container');
     const reportContent = document.querySelector('.report-content');
-    const emptySpace = document.querySelector('.empty-space');
-    
-    if (emptySpace) {
-        // 원래 상태를 저장
-        emptySpace.dataset.originalDisplay = emptySpace.style.display;
-        emptySpace.dataset.originalHeight = emptySpace.style.minHeight;
-        
-        // 빈 공간 제거
-        emptySpace.style.display = 'none';
-        emptySpace.style.minHeight = '0';
-        emptySpace.style.height = '0';
-    }
     
     if (reportContainer && reportContent) {
         // 원래 상태 저장
-        reportContainer.dataset.originalHeight = reportContainer.style.height;
-        reportContent.dataset.originalHeight = reportContent.style.height;
-        reportContent.dataset.originalTransform = reportContent.style.transform;
-        reportContent.dataset.originalOrigin = reportContent.style.transformOrigin;
+        reportContainer.dataset.originalStyle = reportContainer.getAttribute('style');
+        reportContent.dataset.originalStyle = reportContent.getAttribute('style');
         
-        // 인쇄 최적화 설정
+        // 높이와 오버플로우 설정
         reportContainer.style.height = 'auto';
         reportContent.style.height = 'auto';
         reportContainer.style.overflow = 'visible';
         reportContent.style.overflow = 'visible';
-        reportContent.style.transform = 'scale(0.85)';
+        reportContent.style.transform = 'scale(0.9)';
         reportContent.style.transformOrigin = 'top center';
+        
+        // 빈 공간 제거
+        const emptySpace = reportContainer.querySelector('.empty-space');
+        if (emptySpace) {
+            emptySpace.dataset.originalStyle = emptySpace.getAttribute('style');
+            emptySpace.style.display = 'none';
+            emptySpace.style.height = '0';
+            emptySpace.style.minHeight = '0';
+        }
+        
+        // 섹션 간 여백 조정
+        const sections = reportContainer.querySelectorAll('.business-table-container, .service-description, .table-container');
+        sections.forEach(section => {
+            section.dataset.originalMargin = section.style.marginBottom;
+            section.style.marginBottom = '10px';
+        });
     }
-    
-    // 각 섹션의 여백 줄이기
-    const sections = document.querySelectorAll('.business-table-container, .service-description, .table-container, .footer-info');
-    sections.forEach(section => {
-        section.dataset.originalMargin = section.style.marginBottom;
-        section.style.marginBottom = '5px';
-    });
 }
 
 // 인쇄 후 원래 상태로 복원
-function restoreReportAfterPrinting() {
+function restoreAfterPrinting() {
     const reportContainer = document.querySelector('.report-container');
     const reportContent = document.querySelector('.report-content');
-    const emptySpace = document.querySelector('.empty-space');
-    
-    if (emptySpace && emptySpace.dataset.originalDisplay) {
-        emptySpace.style.display = emptySpace.dataset.originalDisplay;
-        emptySpace.style.minHeight = emptySpace.dataset.originalHeight;
-    }
     
     if (reportContainer && reportContent) {
-        if (reportContainer.dataset.originalHeight) {
-            reportContainer.style.height = reportContainer.dataset.originalHeight;
+        // 원래 스타일 복원
+        if (reportContainer.dataset.originalStyle) {
+            reportContainer.setAttribute('style', reportContainer.dataset.originalStyle || '');
         }
         
-        if (reportContent.dataset.originalHeight) {
-            reportContent.style.height = reportContent.dataset.originalHeight;
+        if (reportContent.dataset.originalStyle) {
+            reportContent.setAttribute('style', reportContent.dataset.originalStyle || '');
         }
         
-        if (reportContent.dataset.originalTransform) {
-            reportContent.style.transform = reportContent.dataset.originalTransform;
+        // 빈 공간 복원
+        const emptySpace = document.querySelector('.empty-space');
+        if (emptySpace && emptySpace.dataset.originalStyle) {
+            emptySpace.setAttribute('style', emptySpace.dataset.originalStyle || '');
         }
         
-        if (reportContent.dataset.originalOrigin) {
-            reportContent.style.transformOrigin = reportContent.dataset.originalOrigin;
-        }
+        // 섹션 여백 복원
+        const sections = document.querySelectorAll('.business-table-container, .service-description, .table-container');
+        sections.forEach(section => {
+            if (section.dataset.originalMargin) {
+                section.style.marginBottom = section.dataset.originalMargin;
+            }
+        });
     }
-    
-    // 섹션 여백 복원
-    const sections = document.querySelectorAll('.business-table-container, .service-description, .table-container, .footer-info');
-    sections.forEach(section => {
-        if (section.dataset.originalMargin) {
-            section.style.marginBottom = section.dataset.originalMargin;
-        }
-    });
 }
 
-// 기존 함수 대체
+// 내역서 생성 후 A4에 맞추는 함수 수정
 function adjustReportToFitA4() {
     const reportContainer = document.querySelector('.report-container');
     const reportContent = document.querySelector('.report-content');
@@ -471,23 +377,23 @@ function adjustReportToFitA4() {
     const emptySpace = reportContainer.querySelector('.empty-space');
     if (emptySpace) {
         emptySpace.style.display = 'none';
-        emptySpace.style.minHeight = '0';
         emptySpace.style.height = '0';
     }
     
-    // 컨텐츠 변환
-    reportContent.style.transform = 'scale(0.85)';
+    // 여유 있는 레이아웃을 위해 스케일 조정
+    reportContent.style.transform = 'scale(0.9)';
     reportContent.style.transformOrigin = 'top center';
+    reportContent.style.margin = '0 auto';
     
-    // 모든 내용이 보이도록 함
+    // 모든 내용이 보이도록 설정
     reportContainer.style.height = 'auto';
     reportContent.style.height = 'auto';
     reportContainer.style.overflow = 'visible';
     reportContent.style.overflow = 'visible';
     
-    // 각 섹션 사이 여백 줄이기
+    // 섹션 간 여백 조정
     const sections = reportContainer.querySelectorAll('.business-table-container, .service-description, .table-container');
     sections.forEach(section => {
-        section.style.marginBottom = '5px';
+        section.style.marginBottom = '10px';
     });
 }
