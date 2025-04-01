@@ -150,15 +150,29 @@ function adjustEmptySpace(itemCount) {
     emptySpace.style.minHeight = height;
 }
 
-// 저장하기 기능 (인쇄 다이얼로그를 통해 PDF로 저장)
+// 프린트 저장 기능 개선
 function saveToPrint() {
-    // 인쇄 전에 A4 사이즈에 맞게 조정
-    adjustReportToFitA4();
+    // 인쇄 전 모바일/데스크톱 확인 및 최적화
+    const isMobile = isMobileDevice();
+    
+    // 내역서 요소 가져오기
+    const reportContainer = document.querySelector('.report-container');
+    const reportContent = document.querySelector('.report-content');
+    
+    if (!reportContainer || !reportContent) return;
+    
+    // 모바일에서는 더 작은 스케일로 조정
+    if (isMobile) {
+        reportContent.style.transform = 'scale(0.80)';
+    } else {
+        // 기존 방식으로 A4에 맞추기
+        adjustReportToFitA4();
+    }
     
     // 약간의 시간 간격을 두고 인쇄 다이얼로그 실행
     setTimeout(() => {
         window.print();
-    }, 200);
+    }, 300);
 }
 
 // 함수: 세부 항목 가져오기
