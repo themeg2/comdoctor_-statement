@@ -716,7 +716,7 @@ function generateReport() {
     setTimeout(adjustReportToFitA4, 100);
 }
 
-// 내역서 내용을 A4 용지 한 장에 맞추기 위한 자동 크기 조정 함수
+// 내역서 내용을 A4 용지 한 장에 맞추기 위한 자동 크기 조정 함수 수정
 function adjustReportToFitA4() {
     const reportContainer = document.querySelector('.report-container');
     const reportContent = document.querySelector('.report-content');
@@ -734,8 +734,8 @@ function adjustReportToFitA4() {
     
     // 문서가 A4 용지보다 크면 비율 조정
     if (contentHeight > A4_HEIGHT_PX) {
-        // 크기 조정 비율 계산 - 더 작게 만들어 여유 있게
-        const scale = (A4_HEIGHT_PX / contentHeight) * 0.92; // 스케일 더 작게 조정
+        // 축소율 증가 - 더 작게 만들어서 한 페이지에 모두 표시
+        const scale = (A4_HEIGHT_PX / contentHeight) * 0.88; // 0.92에서 0.88로 더 작게 조정
         
         // CSS transform을 사용하여 크기 조정
         reportContent.style.transform = `scale(${scale})`;
@@ -746,7 +746,5 @@ function adjustReportToFitA4() {
         
         // 원래 내용물의 높이를 유지하면서 변환
         reportContent.style.height = `${contentHeight}px`;
-        
-        console.log(`내용이 A4 용지보다 ${Math.round((1-scale)*100)}% 더 커서 ${scale.toFixed(2)}배로 축소합니다.`);
     }
 }
