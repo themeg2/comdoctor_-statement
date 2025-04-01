@@ -51,11 +51,11 @@ function addTelegramButton(reportContainer) {
     }
 }
 
-// 텔레그램 전송용 최적화 함수 수정
+// 내역서를 이미지로 변환하여 텔레그램으로 전송 (텍스트 또렷하게 개선)
 async function sendReportToTelegram() {
     const statusMsg = document.createElement('div');
     try {
-        // 상태 메시지 설정
+        // 상태 메시지 스타일 설정
         Object.assign(statusMsg.style, {
             position: 'fixed',
             top: '50%',
@@ -77,78 +77,155 @@ async function sendReportToTelegram() {
             loadAxios()
         ]);
 
+        // 고객 정보 추출
+        const titleElement = document.querySelector('.report-title');
+        const titleText = titleElement ? titleElement.textContent : '';
+        
+        // 제목에서 고객 이름 추출
+        const titleParts = titleText.split('님 점검내역서');
+        const customerInfo = titleParts[0] || '';
+        const customerName = customerInfo.split(' ').pop() || '고객';
+        const currentDate = customerInfo.replace(customerName, '').trim() || new Date().toLocaleDateString();
+
         // 보고서 컨테이너 준비
         const reportContainer = document.querySelector('.report-container');
         if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
 
-        // 모바일 뷰를 위한 스케일 조정
-        const isMobile = window.innerWidth < 768;
-        const scale = isMobile ? 2 : 3; // 모바일에서는 더 작은 스케일 사용
+        // 텍스트 선명도 향상을 위한 폰트 최적화
+        optimizeTextRendering(reportContainer);
 
-        // 콘텐츠 최적화
-        // 여백을 줄이고 컨텐츠 채우기
-        const allElements = reportContainer.querySelectorAll('*');
-        allElements.forEach(el => {
-            if (window.getComputedStyle(el).margin !== '0px') {
-                el.style.margin = '2px 0';
-            }
-            if (window.getComputedStyle(el).padding !== '0px') {
-                el.style.padding = '2px';
-            }
-        });
+        // 보고서 레이아웃 최적화
+        optimizeReportLayout(reportContainer);
 
-        // 캡처 컨테이너 설정
+        // 캡처 컨테이너 설정 (가운데 정렬)
         const captureContainer = document.createElement('div');
         Object.assign(captureContainer.style, {
-            width: '100%',
-            height: 'auto',
-            margin: '0',
+            width: '210mm',
+            height: '297mm', // A4 고정 높이
+            margin: '0 auto', // 가운데 정렬을 위한 마진 설정
             padding: '0',
             background: '#FFFFFF',
             position: 'absolute',
             left: '-9999px',
-            overflow: 'visible'
-        });
-
-        // 복제 및 스타일 조정
-        const clonedContent = reportContainer.cloneNode(true);
-        Object.assign(clonedContent.style, {
-            width: isMobile ? '100%' : '210mm',
-            padding: '5mm',
-            margin: '0 auto',
-            transformOrigin: 'center top',
-            transform: 'none', // 먼저 transform을 제거
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             boxSizing: 'border-box'
         });
+
+        // 콘텐츠 복제 및 스타일 최적화
+        const clonedContent = reportContainer.cloneNode(true);
+        Object.assign(clonedContent.style, {
+            width: '100%',
+            height: 'auto',
+            maxHeight: '100%',
+            margin: '0 auto', // 가운데 정렬 추가
+            padding: '10mm',
+            boxSizing: 'border-box',
+            transformOrigin: 'center top',
+            transform: 'scale(0.95)', // 약간 축소 (너무 작으면 텍스트가 흐려짐)
+            overflow: 'visible'
+        });
+        
+        // 불필요한 버튼 제거
+        const buttons = clonedContent.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
+
+        // 감사 인사 메시지가 확실히 보이도록 마진 조정
+        const thankYouMsg = clonedContent.querySelector('.thanks-message');
+        if (thankYouMsg) {
+            thankYouMsg.style.margin = '15px 0 10px 0';
+            thankYouMsg.style.fontSize = '14px';
+            thankYouMsg.style.color = '#333';
+            thankYouMsg.style.fontWeight = 'bold';
+            thankYouMsg.style.textShadow = '0 0 0 #000'; // 텍스트 선명도 향상
+        }
 
         document.body.appendChild(captureContainer);
         captureContainer.appendChild(clonedContent);
 
-        // 캡처 설정
+        // 캡처 설정 - 선명도 향상을 위해 스케일 증가
         const canvas = await html2canvas(captureContainer, {
-            scale: scale,
+            scale: 3, // 해상도 증가 (2에서 3으로 변경)
             useCORS: true,
             allowTaint: true,
             logging: false,
             backgroundColor: '#FFFFFF',
-            imageTimeout: 30000,
-            letterRendering: true,
-            width: captureContainer.scrollWidth,
-            height: captureContainer.scrollHeight,
-            windowWidth: captureContainer.scrollWidth,
-            windowHeight: captureContainer.scrollHeight
+            windowWidth: captureContainer.offsetWidth,
+            windowHeight: captureContainer.offsetHeight,
+            x: 0,
+            y: 0,
+            width: captureContainer.offsetWidth,
+            height: captureContainer.offsetHeight,
+            imageTimeout: 30000, // 타임아웃 증가
+            letterRendering: true, // 글자 렌더링 품질 향상
+            onclone: function(clonedDoc) {
+                // 클론된 문서에 추가 스타일 적용
+                const clonedContainer = clonedDoc.querySelector('.report-container');
+                if (clonedContainer) {
+                    clonedContainer.style.display = 'block';
+                    clonedContainer.style.margin = '0 auto'; // 가운데 정렬 강제
+                    clonedContainer.style.boxShadow = 'none';
+                    
+                    // 내용물 가운데 정렬 강화
+                    const reportContent = clonedContainer.querySelector('.report-content');
+                    if (reportContent) {
+                        reportContent.style.margin = '0 auto';
+                        reportContent.style.transformOrigin = 'center top';
+                    }
+                    
+                    // 텍스트 선명도 향상을 위한 스타일 적용
+                    enhanceTextClarity(clonedDoc);
+                }
+            }
         });
 
+        // 텔레그램 이미지 최적화
+        const telegramMaxWidth = 1280;
+        const telegramMaxHeight = 1600; // 텔레그램은 세로로 긴 이미지도 잘 지원
+        
+        let finalCanvas = canvas;
+        const originalWidth = canvas.width;
+        const originalHeight = canvas.height;
+        
+        // 텔레그램 이미지 최적화 - 선명도 유지를 위해 크기 조정 방식 변경
+        if (originalWidth > telegramMaxWidth || originalHeight > telegramMaxHeight) {
+            const widthRatio = telegramMaxWidth / originalWidth;
+            const heightRatio = telegramMaxHeight / originalHeight;
+            const ratio = Math.min(widthRatio, heightRatio);
+            
+            const newWidth = Math.floor(originalWidth * ratio);
+            const newHeight = Math.floor(originalHeight * ratio);
+            
+            const resizedCanvas = document.createElement('canvas');
+            resizedCanvas.width = newWidth;
+            resizedCanvas.height = newHeight;
+            
+            const ctx = resizedCanvas.getContext('2d');
+            // 이미지 렌더링 품질 최대화
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, newWidth, newHeight); // 흰색 배경 추가
+            // 안티앨리어싱 적용하여 이미지 그리기
+            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+            
+            finalCanvas = resizedCanvas;
+        }
+
         // 이미지 데이터 생성 - 품질 최대화
-        const imageData = canvas.toDataURL('image/jpeg', 0.98);
+        const imageData = finalCanvas.toDataURL('image/jpeg', 0.98); // 품질 최대화
         const blob = await (await fetch(imageData)).blob();
 
-        // 텔레그램 전송
+        // 텔레그램 전송 준비
         statusMsg.textContent = '텔레그램으로 전송 중...';
         const formData = new FormData();
         formData.append('chat_id', '5934421096');
+        formData.append('caption', `[${currentDate}] ${customerName}님의 컴퓨터 점검 내역서`);
         formData.append('photo', blob, 'report.jpg');
 
+        // 텔레그램 전송
         const response = await axios({
             method: 'post',
             url: 'https://api.telegram.org/bot7274631975:AAEsb1gtaMhMpUEHYaYi7wwdidLyVGJ0cUY/sendPhoto',
@@ -156,12 +233,13 @@ async function sendReportToTelegram() {
             headers: { 'Content-Type': 'multipart/form-data' }
         });
 
+        // 결과 처리
         if (response.data?.ok) {
             statusMsg.textContent = '전송 완료!';
             statusMsg.style.background = 'rgba(46, 204, 113, 0.8)';
             setTimeout(() => statusMsg.remove(), 2000);
         } else {
-            throw new Error('텔레그램 API 응답 오류');
+            throw new Error('텔레그램 API 응답 오류: ' + JSON.stringify(response.data));
         }
 
     } catch (error) {
@@ -170,6 +248,7 @@ async function sendReportToTelegram() {
         statusMsg.style.background = 'rgba(231, 76, 60, 0.8)';
         setTimeout(() => statusMsg.remove(), 3000);
     } finally {
+        // 임시 요소 정리
         const captureContainer = document.querySelector('[style*="-9999px"]');
         if (captureContainer) captureContainer.remove();
     }
