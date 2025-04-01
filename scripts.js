@@ -150,7 +150,7 @@ function adjustEmptySpace(itemCount) {
     emptySpace.style.minHeight = height;
 }
 
-// 프린트 저장 기능 개선
+// scripts.js 파일에 이 코드를 추가하세요
 function saveToPrint() {
     // 내역서 요소 가져오기
     const reportContainer = document.querySelector('.report-container');
@@ -197,49 +197,93 @@ function optimizePrintLayout() {
     printStyle.textContent = `
         @page {
             size: A4 portrait;
-            margin: 0mm !important;
+            margin: 0;
             marks: none;
-        }
-        
-        @page :first {
-            margin-top: 0mm !important;
-            margin-bottom: 0mm !important;
-        }
-        
-        @page :left {
-            margin-left: 0mm !important;
-        }
-        
-        @page :right {
-            margin-right: 0mm !important;
         }
         
         @media print {
             html, body {
                 width: 210mm;
                 height: 297mm;
-                margin: 0 !important;
-                padding: 0 !important;
-                overflow: hidden !important;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
             }
             
-            .container, button {
+            .container, button, .modal-close {
                 display: none !important;
+            }
+            
+            .modal-overlay {
+                position: absolute;
+                background-color: white;
+                overflow: visible;
+                height: auto;
+                display: block !important;
+                top: 0;
+                left: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            
+            .modal-container {
+                width: 100%;
+                max-width: none;
+                margin: 0;
+                padding: 0;
+                box-shadow: none;
+                border-radius: 0;
+                height: auto;
+            }
+            
+            .modal-body {
+                max-height: none;
+                overflow: visible;
+                padding: 0;
             }
             
             .report-container {
                 display: block !important;
                 margin: 0 auto !important;
-                padding: 10mm !important;
-                width: 190mm !important;
-                height: 277mm !important;
+                padding: 0 !important;
+                width: 210mm !important; 
+                height: auto !important;
+                max-height: none !important;
                 box-shadow: none !important;
-                overflow: hidden !important;
+                overflow: visible !important;
+                transform: scale(0.95) !important;
+                transform-origin: top center !important;
             }
             
             .report-content {
-                transform: scale(0.95) !important;
+                transform: scale(1) !important; 
                 transform-origin: top center !important;
+                height: auto !important;
+                max-height: none !important;
+                overflow: visible !important;
+            }
+            
+            /* 빈 공간 제거 */
+            .empty-space {
+                display: none !important;
+                height: 0 !important;
+            }
+            
+            /* 테이블 최적화 */
+            .report-items {
+                width: 100% !important;
+                page-break-inside: avoid !important;
+            }
+            
+            /* A4 페이지에 맞게 글꼴 크기 조정 */
+            .report-title {
+                font-size: 18px !important;
+            }
+            
+            /* 모든 콘텐츠가 한 페이지에 맞도록 조정 */
+            .table-container, .footer-info, .tax-info, .payment-info {
+                page-break-inside: avoid !important;
             }
             
             /* 텍스트 선명도 향상 */
@@ -250,4 +294,52 @@ function optimizePrintLayout() {
             }
         }
     `;
+    
+    // 현재 내역서 내용의 높이에 맞게 조정
+    const reportContainer = document.querySelector('.report-container');
+    const reportContent = document.querySelector('.report-content');
+    
+    if (reportContainer && reportContent) {
+        // 기존 transform 스타일 제거
+        reportContent.style.transform = 'none';
+        
+        // 높이를 auto로 설정하여 모든 내용이 표시되도록 함
+        reportContainer.style.height = 'auto';
+        reportContent.style.height = 'auto';
+        
+        // 내용이 모두 표시되도록 overflow 설정
+        reportContainer.style.overflow = 'visible';
+        reportContent.style.overflow = 'visible';
+    }
+}
+
+// A4 페이지에 맞추는 함수 수정
+function adjustReportToFitA4() {
+    const reportContainer = document.querySelector('.report-container');
+    const reportContent = document.querySelector('.report-content');
+    
+    if (!reportContainer || !reportContent) return;
+    
+    // 빈 공간 완전 제거
+    const emptySpace = reportContainer.querySelector('.empty-space');
+    if (emptySpace) {
+        emptySpace.style.display = 'none';
+        emptySpace.style.height = '0';
+    }
+    
+    // 컨테이너에 auto-fit-text 클래스 추가
+    reportContent.classList.add('auto-fit-text');
+    
+    // 컨텐츠를 화면 중앙으로 정렬
+    reportContent.style.margin = '0 auto';
+    reportContent.style.transformOrigin = 'top center';
+    
+    // 모든 내용이 보이도록 함
+    reportContainer.style.height = 'auto';
+    reportContent.style.height = 'auto';
+    reportContainer.style.overflow = 'visible';
+    reportContent.style.overflow = 'visible';
+    
+    // 약간 축소하여 여백 확보
+    reportContent.style.transform = 'scale(0.95)';
 }
