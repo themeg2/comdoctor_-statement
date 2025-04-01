@@ -761,3 +761,30 @@ function getDetailItems(itemsName) {
     
     return details;
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    // 기존 버튼에 새 이벤트 리스너 추가
+    const generateButton = document.querySelector('button[onclick="generateReport()"]');
+    if (generateButton) {
+      generateButton.addEventListener('click', function() {
+        // 내역서가 생성되면 저장 및 텔레그램 버튼에 이벤트 연결
+        setTimeout(function() {
+          // 저장 버튼 이벤트 연결
+          const saveButtons = document.querySelectorAll('.save-button');
+          saveButtons.forEach(function(button) {
+            if (button.textContent.includes('저장')) {
+              button.onclick = saveToPrint;
+            }
+          });
+          
+          // 텔레그램 버튼 이벤트 연결
+          const telegramButtons = document.querySelectorAll('.save-button');
+          telegramButtons.forEach(function(button) {
+            if (button.textContent.includes('텔레그램')) {
+              button.onclick = sendReportToTelegram;
+            }
+          });
+        }, 500);
+      });
+    }
+  });
