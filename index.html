@@ -3,11 +3,27 @@
 <head>
     <style>
         @page {
-            size: A4 portrait;
-            margin: 0mm !important;
-            marks: none;
+          size: A4 portrait;
+          margin: 0mm !important;
+          marks: none;
         }
-    </style>
+        
+        @media print {
+          /* 플랫폼별 특수 설정 */
+          @supports (-webkit-appearance:none) {
+            html, body {
+              height: 297mm;
+              width: 210mm;
+            }
+          }
+          
+          /* Chrome, Safari 대응 */
+          html, body {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
+      </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>컴퓨터 하드웨어 점검 내역서</title>
@@ -112,5 +128,23 @@
 
     <script src="scripts.js"></script>
     <script src="report-generator.js"></script>
+    <script>
+        // 내역서 생성 함수의 마지막에 추가
+        document.addEventListener('DOMContentLoaded', function() {
+          // 기존 버튼에 새 이벤트 리스너 추가
+          const generateButton = document.querySelector('button[onclick="generateReport()"]');
+          if (generateButton) {
+            generateButton.addEventListener('click', function() {
+              // 내역서가 생성되면 저장 버튼에 이벤트 연결
+              setTimeout(function() {
+                const saveButtons = document.querySelectorAll('.save-button');
+                saveButtons.forEach(function(button) {
+                  button.onclick = saveToPrint;
+                });
+              }, 500);
+            });
+          }
+        });
+      </script>
 </body>
 </html>
