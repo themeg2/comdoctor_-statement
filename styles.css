@@ -148,16 +148,14 @@ button {
     flex-direction: column;
 }
 
-/* 보고서 제목 스타일 - 한 줄로 표시되게 수정 */
+/* 보고서 제목 스타일 수정 - 브레이크 있도록 */
 .report-title {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: bold;
     text-align: center;
     margin-bottom: 10px;
-    letter-spacing: 3px; /* 자간 줄임 */
-    white-space: nowrap; /* 한 줄로 표시 */
-    overflow: hidden;
-    text-overflow: ellipsis; /* 만약 너무 길면 생략 */
+    letter-spacing: 4px;
+    line-height: 1.5;
 }
 
 .customer-info {
@@ -206,10 +204,9 @@ button {
     font-size: 11px;
 }
 
+/* 테이블 셀 패딩 축소 */
 .report-items th, .report-items td {
-    border: 1px solid #ddd;
-    padding: 4px !important;
-    vertical-align: middle;
+    padding: 3px !important;
 }
 
 .report-items th {
@@ -274,11 +271,9 @@ button {
     border-bottom: 1px solid #ddd;
 }
 
+/* 세금 정보 최적화 */
 .tax-table td {
-    padding: 6px 10px;
-    border-bottom: 1px solid #eee;
-    font-size: 11px;
-    vertical-align: middle;
+    padding: 3px 6px !important;
 }
 
 .amount {
@@ -358,13 +353,10 @@ button {
     margin-bottom: 3px;
 }
 
-/* 도장 및 감사 인사 스타일 */
+/* 도장 및 감사 인사 최적화 */
 .stamp {
-    text-align: center;
-    margin-top: 5px !important;
-    position: relative;
-    border-top: 1px dashed #ddd;
-    padding-top: 5px !important;
+    margin-top: 3px !important;
+    padding-top: 3px !important;
 }
 
 .thanks-message {
@@ -590,11 +582,18 @@ button {
     padding: 10px 0;
 }
 
-/* 미디어 쿼리 조정 */
+/* 모바일 환경에서도 잘 보이도록 조정 */
 @media (max-width: 768px) {
-    .account-info, .receipt-info {
-        width: 100%;
-        margin-bottom: 10px;
+    .report-title {
+        font-size: 18px;
+    }
+    
+    .service-description {
+        padding: 5px !important;
+    }
+    
+    .service-point {
+        padding: 2px 4px !important;
     }
 }
 
@@ -670,9 +669,9 @@ button {
         grid-column: span 3;
     }
     
-    /* 서비스 설명 섹션 크기 조정 */
+    /* 서비스 설명 더 컴팩트하게 */
     .service-description {
-        margin: 3px 0 !important;
+        margin: 5px 0 !important;
         padding: 8px !important;
     }
     
@@ -681,6 +680,7 @@ button {
         padding-bottom: 5px !important;
     }
     
+    /* 서비스 포인트 더 컴팩트하게 */
     .service-point {
         margin-bottom: 3px !important;
         padding: 4px 6px !important;

@@ -51,7 +51,7 @@ function addTelegramButton(reportContainer) {
     }
 }
 
-// 내역서를 이미지로 변환하여 텔레그램으로 전송 (짤림 현상 해결)
+// 내역서를 이미지로 변환하여 텔레그램으로 전송 (페이지 잘림 문제 해결)
 async function sendReportToTelegram() {
     const statusMsg = document.createElement('div');
     try {
@@ -80,88 +80,176 @@ async function sendReportToTelegram() {
         // 고객 정보 추출
         const titleElement = document.querySelector('.report-title');
         const titleText = titleElement ? titleElement.textContent : '';
-        const customerNameMatch = titleText.match(/(.+)님 점검내역서/);
-        const customerName = customerNameMatch ? customerNameMatch[1] : '고객';
-        const currentDate = titleText.split(customerName)[0] || new Date().toLocaleDateString();
+        
+        // 제목에서 고객 이름 추출 (새로운 형식에 맞게 수정)
+        const titleParts = titleText.split('님 점검내역서');
+        const customerInfo = titleParts[0] || '';
+        const customerName = customerInfo.split(' ').pop() || '고객';
+        const currentDate = customerInfo.replace(customerName, '').trim() || new Date().toLocaleDateString();
 
         // 보고서 컨테이너 준비
         const reportContainer = document.querySelector('.report-container');
         if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
 
-        // 캡처 컨테이너 설정
+        // 보고서 내용 최적화 및 크기 조정
+        const reportContent = reportContainer.querySelector('.report-content');
+        if (reportContent) {
+            // 전체 컨텐츠 축소
+            reportContent.style.transform = 'scale(0.85)';
+            reportContent.style.transformOrigin = 'top center';
+            
+            // 불필요한 공간 최소화
+            const emptySpace = reportContent.querySelector('.empty-space');
+            if (emptySpace) {
+                emptySpace.style.minHeight = '0';
+                emptySpace.style.maxHeight = '5px';
+            }
+            
+            // 내용물 간격 최소화
+            const serviceDescription = reportContent.querySelector('.service-description');
+            if (serviceDescription) {
+                serviceDescription.style.margin = '3px 0';
+                serviceDescription.style.padding = '5px';
+            }
+            
+            const servicePoints = reportContent.querySelectorAll('.service-point');
+            servicePoints.forEach(point => {
+                point.style.marginBottom = '2px';
+                point.style.padding = '3px 5px';
+            });
+            
+            // 테이블 최적화
+            const reportItems = reportContent.querySelector('.report-items');
+            if (reportItems) {
+                const tableCells = reportItems.querySelectorAll('td, th');
+                tableCells.forEach(cell => {
+                    cell.style.padding = '2px';
+                });
+            }
+            
+            // 세금 정보 최적화
+            const taxInfo = reportContent.querySelector('.tax-info');
+            if (taxInfo) {
+                taxInfo.style.marginTop = '3px';
+            }
+            
+            // 감사 인사 공간 최적화
+            const stamp = reportContent.querySelector('.stamp');
+            if (stamp) {
+                stamp.style.marginTop = '3px';
+                stamp.style.paddingTop = '3px';
+            }
+        }
+
+        // 캡처 컨테이너 설정 (전체 페이지 맞춤형)
         const captureContainer = document.createElement('div');
         Object.assign(captureContainer.style, {
             width: '210mm',
+            height: '297mm', // A4 고정 높이
             margin: '0',
-            padding: '20px',
+            padding: '10px',
             background: '#FFFFFF',
             position: 'absolute',
             left: '-9999px',
-            transform: 'none',
+            overflow: 'hidden',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
             webkitFontSmoothing: 'antialiased',
             textRendering: 'optimizeLegibility'
         });
 
         // 콘텐츠 복제 및 정리
         const clonedContent = reportContainer.cloneNode(true);
-        const paymentInfo = clonedContent.querySelector('.payment-info');
-        if (paymentInfo) {
-            const nextElements = Array.from(paymentInfo.parentElement.children);
-            const startIndex = nextElements.indexOf(paymentInfo) + 1;
-            nextElements.slice(startIndex).forEach(el => el.remove());
-        }
+        Object.assign(clonedContent.style, {
+            width: '100%',
+            height: '100%',
+            padding: '10px',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'start'
+        });
+        
+        // 불필요한 버튼 제거
+        const buttons = clonedContent.querySelectorAll('button');
+        buttons.forEach(button => button.remove());
 
         document.body.appendChild(captureContainer);
         captureContainer.appendChild(clonedContent);
+        
+        // 내용물이 한 페이지에 맞도록 자동 축소
+        const contentContainer = clonedContent.querySelector('.report-content');
+        if (contentContainer) {
+            // 내용물 높이 측정
+            const contentHeight = contentContainer.scrollHeight;
+            const containerHeight = captureContainer.clientHeight - 20; // 패딩 고려
+            
+            // 내용물이 컨테이너보다 크면 축소
+            if (contentHeight > containerHeight) {
+                const scale = containerHeight / contentHeight * 0.95;
+                contentContainer.style.transform = `scale(${scale})`;
+                contentContainer.style.transformOrigin = 'top center';
+            }
+        }
 
         // 캡처 설정
         const canvas = await html2canvas(captureContainer, {
-            scale: 4,
+            scale: 2, // 해상도 조정
             useCORS: true,
             allowTaint: true,
             logging: false,
             backgroundColor: '#FFFFFF',
-            scrollY: -window.scrollY,
             windowWidth: captureContainer.offsetWidth,
             windowHeight: captureContainer.offsetHeight,
+            x: 0,
+            y: 0,
+            width: captureContainer.offsetWidth,
+            height: captureContainer.offsetHeight,
             imageTimeout: 15000,
             removeContainer: false,
-            letterRendering: true,
-            foreignObjectRendering: true,
             onclone: function(clonedDoc) {
                 const clonedContainer = clonedDoc.querySelector('.report-container');
                 if (clonedContainer) {
-                    Object.assign(clonedContainer.style, {
-                        width: '210mm',
-                        margin: '0',
-                        padding: '20px'
-                    });
+                    clonedContainer.style.display = 'block';
+                    clonedContainer.style.width = '100%';
+                    clonedContainer.style.height = '100%';
+                    clonedContainer.style.margin = '0';
                 }
             }
         });
 
-        // 이미지 크기 최적화
-        const maxWidth = 2400;
-        const maxHeight = 3400;
+        // 이미지 최적화 - 텔레그램 제한에 맞게 조정
+        const telegramMaxWidth = 1280; // 텔레그램 권장 최대 너비
+        const telegramMaxHeight = 1280; // 텔레그램 권장 최대 높이
+        
         let finalCanvas = canvas;
-
-        if (canvas.width > maxWidth) {
-            const ratio = maxWidth / canvas.width;
-            const newWidth = maxWidth;
-            const newHeight = Math.min(canvas.height * ratio, maxHeight);
+        const originalWidth = canvas.width;
+        const originalHeight = canvas.height;
+        
+        // 텔레그램 이미지 최적화
+        if (originalWidth > telegramMaxWidth || originalHeight > telegramMaxHeight) {
+            const widthRatio = telegramMaxWidth / originalWidth;
+            const heightRatio = telegramMaxHeight / originalHeight;
+            const ratio = Math.min(widthRatio, heightRatio);
+            
+            const newWidth = Math.floor(originalWidth * ratio);
+            const newHeight = Math.floor(originalHeight * ratio);
             
             const resizedCanvas = document.createElement('canvas');
             resizedCanvas.width = newWidth;
             resizedCanvas.height = newHeight;
+            
             const ctx = resizedCanvas.getContext('2d');
             ctx.imageSmoothingEnabled = true;
             ctx.imageSmoothingQuality = 'high';
             ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
+            
             finalCanvas = resizedCanvas;
         }
 
-        // 이미지 데이터 생성
-        const imageData = finalCanvas.toDataURL('image/jpeg', 1.0);
+        // 이미지 데이터 생성 (품질 조정)
+        const imageData = finalCanvas.toDataURL('image/jpeg', 0.85);
         const blob = await (await fetch(imageData)).blob();
 
         // 텔레그램 전송 준비
@@ -200,7 +288,7 @@ async function sendReportToTelegram() {
     }
 }
 
-// 점검 내역서 생성 함수
+/// 점검 내역서 생성 함수
 function generateReport() {
     // 필요한 모든 데이터 수집
     const customerName = document.getElementById("customer-input").value.trim() || "홍길동";
@@ -240,11 +328,14 @@ function generateReport() {
     const reportContent = document.createElement('div');
     reportContent.className = 'report-content';
     
-    // 제목 (점검일과 고객명을 한 줄에 표시)
+    // 제목 (점검일과 고객명 포함)
     const reportTitle = document.createElement('div');
     reportTitle.className = 'report-title';
-    // 날짜와 이름이 한 줄에 표시되도록 수정
-    reportTitle.innerHTML = `${formattedDate} ${customerName}님 점검내역서`;
+    
+    // 타이틀을 위아래 줄로 나누어 표시
+    const titleDate = dateInput ? formatDate(dateInput) : formatDate(new Date().toISOString().slice(0, 10));
+    reportTitle.innerHTML = `${titleDate}<br>${customerName}님 점검내역서`;
+    
     reportContent.appendChild(reportTitle);
     
     // 업체 정보 테이블 개선
@@ -429,10 +520,11 @@ function generateReport() {
     reportItemsTable.appendChild(tableBody);
     tableContainer.appendChild(reportItemsTable);
 
-    // 빈 공간 추가 - 기존 함수 사용하되 높이 감소
+    // 빈 공간 추가 - 최소화
     const emptySpace = document.createElement('div');
     emptySpace.className = 'empty-space';
-    emptySpace.style.minHeight = Math.max(5, 60 - (itemCount * 10)) + 'px'; // 빈 공간 높이 감소
+    emptySpace.style.minHeight = '0';
+    emptySpace.style.maxHeight = '5px';
     tableContainer.appendChild(emptySpace);
     
     // 세금 정보 추가
@@ -463,8 +555,7 @@ function generateReport() {
                 </table>
                 
                 <div class="tax-note">
-                    <p>※ 부가가치세는 부가가치세법에 따라 재화 및 용역의 공급에 부과되는 세금으로, 
-                    최종 소비자가 부담하는 간접세입니다. ※ 사업자는 이를 대신 수납하여 국가에 납부합니다.</p>
+                    <p>※ 부가가치세는 부가가치세법에 따라 재화 및 용역의 공급에 부과되는 세금으로, 최종 소비자가 부담하는 간접세입니다. ※ 사업자는 이를 대신 수납하여 국가에 납부합니다.</p>
                 </div>
             </div>
             
@@ -508,184 +599,37 @@ function generateReport() {
     setTimeout(adjustReportToFitA4, 100);
 }
 
-// 내역서를 이미지로 변환하여 텔레그램으로 전송 (짤림 현상 해결)
-async function sendReportToTelegram() {
-    const statusMsg = document.createElement('div');
-    try {
-        // 상태 메시지 스타일 설정
-        Object.assign(statusMsg.style, {
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            padding: '15px 25px',
-            background: 'rgba(0, 0, 0, 0.8)',
-            color: 'white',
-            borderRadius: '5px',
-            zIndex: '10000',
-            fontSize: '16px'
-        });
-        statusMsg.textContent = '이미지 변환 중...';
-        document.body.appendChild(statusMsg);
-
-        // 필요한 라이브러리 로드
-        const [html2canvas, axios] = await Promise.all([
-            loadHtml2Canvas(),
-            loadAxios()
-        ]);
-
-        // 고객 정보 추출
-        const titleElement = document.querySelector('.report-title');
-        const titleText = titleElement ? titleElement.textContent : '';
+// 내역서 내용을 A4 용지 한 장에 맞추기 위한 자동 크기 조정 함수
+function adjustReportToFitA4() {
+    const reportContainer = document.querySelector('.report-container');
+    const reportContent = document.querySelector('.report-content');
+    
+    if (!reportContainer || !reportContent) return;
+    
+    // A4 용지의 실제 크기 (mm 단위를 픽셀로 대략 변환)
+    const A4_HEIGHT_PX = 1123; // 297mm * 3.78 pixels/mm (대략적인 변환)
+    
+    // 컨테이너에 auto-fit-text 클래스 추가
+    reportContent.classList.add('auto-fit-text');
+    
+    // 문서의 실제 높이 구하기
+    const contentHeight = reportContent.scrollHeight;
+    
+    // 문서가 A4 용지보다 크면 비율 조정
+    if (contentHeight > A4_HEIGHT_PX) {
+        // 크기 조정 비율 계산 - 더 작게 만들어 여유 있게
+        const scale = (A4_HEIGHT_PX / contentHeight) * 0.92; // 스케일 더 작게 조정
         
-        // 제목에서 고객 이름 추출 (새로운 형식에 맞게 수정)
-        const titleParts = titleText.split('님 점검내역서');
-        const customerInfo = titleParts[0] || '';
-        const customerName = customerInfo.split(' ').pop() || '고객';
-        const currentDate = customerInfo.replace(customerName, '').trim() || new Date().toLocaleDateString();
-
-        // 보고서 컨테이너 준비
-        const reportContainer = document.querySelector('.report-container');
-        if (!reportContainer) throw new Error('내역서를 찾을 수 없습니다.');
-
-        // 리포트 콘텐츠 스타일 최적화
-        const reportContent = reportContainer.querySelector('.report-content');
-        if (reportContent) {
-            // 내부 요소 간격 최적화
-            const serviceDescription = reportContent.querySelector('.service-description');
-            if (serviceDescription) {
-                serviceDescription.style.margin = '5px 0';
-                serviceDescription.style.padding = '10px';
-            }
-
-            // 서비스 포인트 간격 줄이기
-            const servicePoints = reportContent.querySelectorAll('.service-point');
-            servicePoints.forEach(point => {
-                point.style.marginBottom = '4px';
-                point.style.padding = '5px 8px';
-            });
-
-            // 점검 내역 테이블 최적화
-            const reportItems = reportContent.querySelector('.report-items');
-            if (reportItems) {
-                reportItems.style.marginBottom = '5px';
-            }
-        }
-
-        // 캡처 컨테이너 설정
-        const captureContainer = document.createElement('div');
-        Object.assign(captureContainer.style, {
-            width: '210mm',
-            margin: '0',
-            padding: '20px',
-            background: '#FFFFFF',
-            position: 'absolute',
-            left: '-9999px',
-            transform: 'none',
-            webkitFontSmoothing: 'antialiased',
-            textRendering: 'optimizeLegibility'
-        });
-
-        // 콘텐츠 복제 및 정리
-        const clonedContent = reportContainer.cloneNode(true);
+        // CSS transform을 사용하여 크기 조정
+        reportContent.style.transform = `scale(${scale})`;
+        reportContent.style.transformOrigin = 'top center'; // 중앙 정렬
         
-        // 전체 콘텐츠가 캡처되도록 확인
-        const footerInfo = clonedContent.querySelector('.footer-info');
-        if (footerInfo) {
-            footerInfo.style.marginTop = '5px';
-        }
+        // 변환 후 높이가 100%가 되도록 컨테이너 높이 조정
+        reportContainer.style.height = `${A4_HEIGHT_PX}px`;
         
-        const stamp = clonedContent.querySelector('.stamp');
-        if (stamp) {
-            stamp.style.marginTop = '5px';
-            stamp.style.paddingTop = '5px';
-        }
-
-        document.body.appendChild(captureContainer);
-        captureContainer.appendChild(clonedContent);
-
-        // 캡처 설정
-        const canvas = await html2canvas(captureContainer, {
-            scale: 3, // 3으로 변경하여 전체적인 품질과 파일 크기 균형 조정
-            useCORS: true,
-            allowTaint: true,
-            logging: false,
-            backgroundColor: '#FFFFFF',
-            scrollY: -window.scrollY,
-            windowWidth: captureContainer.offsetWidth,
-            windowHeight: captureContainer.offsetHeight,
-            imageTimeout: 15000,
-            removeContainer: false,
-            letterRendering: true,
-            foreignObjectRendering: true,
-            onclone: function(clonedDoc) {
-                const clonedContainer = clonedDoc.querySelector('.report-container');
-                if (clonedContainer) {
-                    Object.assign(clonedContainer.style, {
-                        width: '210mm',
-                        margin: '0',
-                        padding: '20px'
-                    });
-                }
-            }
-        });
-
-        // 이미지 크기 최적화
-        const maxWidth = 2000; // 너비 축소
-        const maxHeight = 2800; // 높이 축소
-        let finalCanvas = canvas;
-
-        if (canvas.width > maxWidth) {
-            const ratio = maxWidth / canvas.width;
-            const newWidth = maxWidth;
-            const newHeight = Math.min(canvas.height * ratio, maxHeight);
-            
-            const resizedCanvas = document.createElement('canvas');
-            resizedCanvas.width = newWidth;
-            resizedCanvas.height = newHeight;
-            const ctx = resizedCanvas.getContext('2d');
-            ctx.imageSmoothingEnabled = true;
-            ctx.imageSmoothingQuality = 'high';
-            ctx.drawImage(canvas, 0, 0, newWidth, newHeight);
-            finalCanvas = resizedCanvas;
-        }
-
-        // 이미지 데이터 생성 (품질 0.9로 설정하여 최적화)
-        const imageData = finalCanvas.toDataURL('image/jpeg', 0.9);
-        const blob = await (await fetch(imageData)).blob();
-
-        // 텔레그램 전송 준비
-        statusMsg.textContent = '텔레그램으로 전송 중...';
-        const formData = new FormData();
-        formData.append('chat_id', '5934421096');
-        formData.append('caption', `[${currentDate}] ${customerName}님의 컴퓨터 점검 내역서`);
-        formData.append('photo', blob, 'report.jpg');
-
-        // 텔레그램 전송
-        const response = await axios({
-            method: 'post',
-            url: 'https://api.telegram.org/bot7274631975:AAEsb1gtaMhMpUEHYaYi7wwdidLyVGJ0cUY/sendPhoto',
-            data: formData,
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-
-        // 결과 처리
-        if (response.data?.ok) {
-            statusMsg.textContent = '전송 완료!';
-            statusMsg.style.background = 'rgba(46, 204, 113, 0.8)';
-            setTimeout(() => statusMsg.remove(), 2000);
-        } else {
-            throw new Error('텔레그램 API 응답 오류: ' + JSON.stringify(response.data));
-        }
-
-    } catch (error) {
-        console.error('텔레그램 전송 오류:', error);
-        statusMsg.textContent = '전송 실패: ' + (error.message || '알 수 없는 오류');
-        statusMsg.style.background = 'rgba(231, 76, 60, 0.8)';
-        setTimeout(() => statusMsg.remove(), 3000);
-    } finally {
-        // 임시 요소 정리
-        const captureContainer = document.querySelector('[style*="-9999px"]');
-        if (captureContainer) captureContainer.remove();
+        // 원래 내용물의 높이를 유지하면서 변환
+        reportContent.style.height = `${contentHeight}px`;
+        
+        console.log(`내용이 A4 용지보다 ${Math.round((1-scale)*100)}% 더 커서 ${scale.toFixed(2)}배로 축소합니다.`);
     }
 }
