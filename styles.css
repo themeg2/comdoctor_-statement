@@ -906,252 +906,37 @@ button {
     font-weight: 500;
 }
   
-/* styles.css 파일의 @media print 부분을 이걸로 교체하세요 */
 @media print {
-    /* 기본 페이지 설정 */
-    @page {
-        size: A4 portrait;
-        margin: 0 !important;
-        marks: none;
+    .service-description {
+        background-color: #f8f9fa !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
     }
     
-    html, body {
-        width: 100%;
-        height: 100%;
-        margin: 0 !important;
-        padding: 0 !important;
-        overflow: visible !important;
-        background-color: #fff;
+    .service-conclusion {
+        background-color: #e8f4f8 !important;
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
     }
-    
-    /* 불필요한 요소 숨기기 */
-    .container, .modal-close, .save-button, button {
-        display: none !important;
-    }
-    
-    /* 모달 스타일 */
-    .modal-overlay {
-        position: absolute !important;
-        background-color: white !important;
-        overflow: visible !important;
-        height: auto !important;
-        display: block !important;
-        top: 0 !important;
-        left: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-    }
-    
-    .modal-container {
-        width: 100% !important;
-        max-width: none !important;
-        margin: 0 !important;
-        padding: 0 !important;
-        box-shadow: none !important;
-        border-radius: 0 !important;
-        height: auto !important;
-        overflow: visible !important;
-    }
-    
-    .modal-body {
-        max-height: none !important;
-        overflow: visible !important;
-        height: auto !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* 내역서 컨테이너 */
+}
+
+.report-container * {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+/* 텔레그램 전송용 이미지 최적화 */
+@media print, screen {
     .report-container {
-        display: block !important;
-        margin: 0 auto !important;
-        padding: 5mm !important;
-        width: 200mm !important;
-        height: auto !important;
-        box-shadow: none !important;
-        overflow: visible !important;
-        page-break-after: avoid !important;
-        page-break-inside: avoid !important;
-        transform: none !important;
+        transform-origin: center top !important;
     }
     
     .report-content {
-        transform: scale(0.85) !important;
-        transform-origin: top center !important;
-        height: auto !important;
-        overflow: visible !important;
-        padding: 0 !important;
-        margin: 0 auto !important;
+        transform-origin: center top !important;
     }
     
-    /* 빈 공간 제거 */
-    .empty-space {
-        display: none !important;
-        height: 0 !important;
-        min-height: 0 !important;
-        max-height: 0 !important;
-        padding: 0 !important;
-        margin: 0 !important;
-    }
-    
-    /* 제목 및 회사 정보 */
-    .report-title {
-        font-size: 16px !important;
-        margin-bottom: 5px !important;
-        letter-spacing: 0 !important;
-        line-height: 1.3 !important;
-    }
-    
-    .business-table-container {
-        margin-bottom: 5px !important;
-    }
-    
-    .business-header {
-        padding: 8px !important;
-    }
-    
-    .business-name {
-        font-size: 15px !important;
-    }
-    
-    .representative {
-        font-size: 10px !important;
-        margin-right: 30px !important;
-    }
-    
-    .official-seal {
-        width: 35px !important;
-        height: 35px !important;
-    }
-    
-    .logo-placeholder {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 18px !important;
-        margin-right: 8px !important;
-    }
-    
-    .business-info-item {
-        padding: 5px !important;
-    }
-    
-    .info-label, .info-value {
-        font-size: 10px !important;
-    }
-    
-    /* 서비스 설명 섹션 */
-    .service-description {
-        margin: 5px 0 !important;
-        padding: 5px !important;
-    }
-    
-    .service-title {
-        font-size: 13px !important;
-        margin-bottom: 4px !important;
-        padding-bottom: 3px !important;
-    }
-    
-    .service-intro, .conclusion-content {
-        font-size: 10px !important;
-        line-height: 1.2 !important;
-        margin-bottom: 5px !important;
-    }
-    
-    .service-point {
-        margin-bottom: 2px !important;
-        padding: 2px 4px !important;
-    }
-    
-    .point-title, .point-description {
-        font-size: 10px !important;
-        line-height: 1.2 !important;
-    }
-    
-    /* 테이블 스타일 */
-    .table-container {
-        margin-bottom: 5px !important;
-        flex-grow: 0 !important;
-    }
-    
-    .report-items {
-        margin-bottom: 5px !important;
-        page-break-inside: avoid !important;
-    }
-    
-    .report-items th, .report-items td {
-        padding: 2px !important;
-        font-size: 10px !important;
-        line-height: 1.2 !important;
-    }
-    
-    .detail-item {
-        font-size: 9px !important;
-        line-height: 1.1 !important;
-        margin-bottom: 1px !important;
-        text-indent: -5px !important;
-        padding-left: 5px !important;
-    }
-    
-    /* 세금 정보 및 결제 정보 */
-    .tax-info {
-        margin-top: 2px !important;
-        padding-top: 2px !important;
-    }
-    
-    .tax-table {
-        margin-bottom: 5px !important;
-    }
-    
-    .tax-table td, .tax-table th {
-        padding: 2px !important;
-        font-size: 10px !important;
-    }
-    
-    .tax-note {
-        font-size: 8px !important;
-        padding: 3px !important;
-        margin-top: 2px !important;
-        line-height: 1.1 !important;
-    }
-    
-    .payment-info {
-        margin-top: 2px !important;
-        padding-top: 5px !important;
-    }
-    
-    .account-info, .receipt-info {
-        padding: 5px !important;
-    }
-    
-    .info-title {
-        font-size: 10px !important;
-        margin: 0 0 4px 0 !important;
-        padding-bottom: 2px !important;
-    }
-    
-    .account-number {
-        font-size: 10px !important;
-        margin: 2px 0 !important;
-    }
-    
-    /* 감사 인사 */
-    .stamp {
-        margin-top: 5px !important;
-        padding-top: 3px !important;
-    }
-    
-    .thanks-message {
-        font-size: 12px !important;
-        margin: 8px 0 5px 0 !important;
-        line-height: 1.3 !important;
-    }
-    
-    /* 텍스트 선명도 */
-    * {
-        text-rendering: optimizeLegibility !important;
-        -webkit-font-smoothing: antialiased !important;
-        -moz-osx-font-smoothing: grayscale !important;
+    /* 감사 인사 확실히 보이도록 마진 추가 */
+    .footer-info {
+        margin-bottom: 20px !important;
     }
 }
