@@ -461,10 +461,10 @@ function generateReport() {
         <div class="business-header">
             <div class="business-logo">
                 <div class="logo-placeholder">W</div>
-                <h2 class="business-name">웰컴 컴퓨터 수리</h2>
+                <h2 class="business-name">웰컴 소프트복구</h2>
             </div>
             <div class="business-stamp">
-                <div class="representative">대표자: 최성현</div>
+                <div class="representative">대표자: 천민호</div>
                 <img id="seal-image" class="official-seal" alt="도장" src="dojang.png">
             </div>
         </div>
@@ -472,7 +472,7 @@ function generateReport() {
         <div class="business-info-grid">
             <div class="business-info-item">
                 <span class="info-label">등록번호</span>
-                <span class="info-value">876-13-01105</span>
+                <span class="info-value">594-50-00999</span>
             </div>
             <div class="business-info-item">
                 <span class="info-label">전화번호</span>
@@ -480,15 +480,15 @@ function generateReport() {
             </div>
             <div class="business-info-item">
                 <span class="info-label">업태</span>
-                <span class="info-value">서비스업</span>
+                <span class="info-value">서비스/소매</span>
             </div>
             <div class="business-info-item">
                 <span class="info-label">종목</span>
-                <span class="info-value">컴퓨터수리, 데이터복구</span>
+                <span class="info-value">컴퓨터수리 및 판매</span>
             </div>
             <div class="business-info-item full-width">
                 <span class="info-label">주소</span>
-                <span class="info-value">부산시 연제구 연미로 13번길 32, 3층 301호 (연산동)</span>
+                <span class="info-value">연제구 과정로260번길 22</span>
             </div>
         </div>
     </div>
